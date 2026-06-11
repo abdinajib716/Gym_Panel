@@ -1,0 +1,372 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model AccessControlSettings {
+  id                 String   @id @default(uuid())
+  key                String   @unique @default("global")
+  siteName           String   @default("Startap Admin")
+  siteLogoFullLight  String?
+  siteIcon           String?
+  siteLogoFullDark   String?
+  siteFavicon        String?
+  loginPageLogo      String?
+  themeMode          String   @default("system")
+  primaryColor       String   @default("#2f8fe8")
+  sidebarStyle       String   @default("default")
+  layoutWidth        String   @default("boxed")
+  headerStyle        String   @default("sticky")
+  mailDriver         String   @default("smtp")
+  fromName           String?
+  fromEmail          String?
+  smtpHost           String?
+  smtpPort           Int?
+  smtpUsername       String?
+  smtpPassword       String?
+  encryption         String   @default("tls")
+  firebaseEnabled    Boolean  @default(false)
+  firebaseProjectId  String?
+  firebaseClientEmail String?
+  firebasePrivateKey String?
+  firebaseServerKey  String?
+  waafiEnabled       Boolean  @default(false)
+  waafiEnvironment   String   @default("test")
+  waafiApiBaseUrl    String?
+  waafiMerchantUid   String?
+  waafiApiUserId     String?
+  waafiApiKey        String?
+  waafiMerchantNumber String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model AccessUser {
+  id           String              @id @default(uuid())
+  avatarUrl    String?
+  firstName    String
+  lastName     String
+  username     String              @unique
+  email        String              @unique
+  passwordHash String?
+  displayName  String?
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  roles        AccessUserRole[]
+  activityLogs AccessActivityLog[] @relation("ActivityActor")
+}
+
+model AccessRole {
+  id          String                 @id @default(uuid())
+  name        String
+  guardName   String                 @default("web")
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
+  users       AccessUserRole[]
+  permissions AccessRolePermission[]
+
+  @@unique([name, guardName])
+}
+
+model AccessPermission {
+  id          String                 @id @default(uuid())
+  name        String
+  guardName   String                 @default("web")
+  groupKey    String
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
+  roles       AccessRolePermission[]
+
+  @@unique([name, guardName])
+}
+
+model AccessUserRole {
+  id        String     @id @default(uuid())
+  userId    String
+  roleId    String
+  createdAt DateTime   @default(now())
+  user      AccessUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      AccessRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId])
+}
+
+model AccessRolePermission {
+  id           String           @id @default(uuid())
+  roleId       String
+  permissionId String
+  createdAt    DateTime         @default(now())
+  role         AccessRole       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   AccessPermission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+}
+
+model AccessActivityLog {
+  id          String      @id @default(uuid())
+  type        String
+  activity    String
+  subject     String
+  subjectId   String?
+  userId      String?
+  userDisplay String?
+  metadata    Json?
+  createdAt   DateTime    @default(now())
+  user        AccessUser? @relation("ActivityActor", fields: [userId], references: [id], onDelete: SetNull)
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum MemberStatus {
+  ACTIVE
+  PENDING
+  SUSPENDED
+  EXPIRED
+}
+
+enum PlanType {
+  MONTHLY
+  QUARTERLY
+  ANNUAL
+  GROUP_TRAINING
+  PERSONAL_TRAINING
+}
+
+enum PlanStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  PENDING
+  SUSPENDED
+}
+
+enum PaymentStatus {
+  PAID
+  PENDING
+  FAILED
+  CANCELLED
+  EXPIRED
+}
+
+enum PaymentMethod {
+  CASH
+  MANUAL_EVC
+  EVC_MANUAL
+  BANK_TRANSFER
+  OTHER_MANUAL_MOBILE_MONEY
+  WAAFI_PAY
+  WAAFI
+  EVC_ONLINE
+}
+
+enum PaymentType {
+  MANUAL
+  ONLINE
+}
+
+enum OnlinePaymentProvider {
+  EVC_PLUS
+  JEEB
+  ZAAD
+  SAHAL
+}
+
+enum AttendanceMethod {
+  MANUAL
+}
+
+enum AttendanceStatus {
+  PRESENT
+  CANCELLED
+}
+
+enum NotificationType {
+  PAYMENT_REMINDER
+  SUBSCRIPTION_EXPIRY
+  GYM_ANNOUNCEMENT
+  UPGRADE_CONFIRMATION
+  GENERAL_MESSAGE
+}
+
+enum NotificationTarget {
+  ALL_MEMBERS
+  SINGLE_MEMBER
+}
+
+enum NotificationReadStatus {
+  UNREAD
+  READ
+}
+
+enum TrainerStatus {
+  ACTIVE
+  INACTIVE
+}
+
+model Member {
+  id               String          @id @default(uuid())
+  fullName         String
+  phoneNumber      String
+  email            String?         @unique
+  gender           Gender
+  address          String?
+  dateOfBirth      DateTime?
+  emergencyContact String?
+  profileImage     String?
+  status           MemberStatus    @default(PENDING)
+  trainerId        String?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  trainer          Trainer?        @relation(fields: [trainerId], references: [id], onDelete: SetNull)
+  subscriptions    Subscription[]
+  payments         Payment[]
+  attendance       Attendance[]
+  notifications    Notification[]
+
+  @@index([fullName])
+  @@index([phoneNumber])
+  @@index([status])
+  @@index([trainerId])
+}
+
+model Trainer {
+  id           String        @id @default(uuid())
+  fullName     String
+  phoneNumber  String
+  email        String?       @unique
+  gender       Gender
+  specialty    String
+  availability String?
+  status       TrainerStatus @default(ACTIVE)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  members      Member[]
+
+  @@index([fullName])
+  @@index([status])
+}
+
+model MembershipPlan {
+  id            String         @id @default(uuid())
+  name          String
+  type          PlanType
+  durationDays  Int
+  price         Decimal        @db.Decimal(10, 2)
+  description   String?
+  status        PlanStatus     @default(ACTIVE)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  subscriptions Subscription[]
+  payments      Payment[]
+
+  @@index([name])
+  @@index([type])
+  @@index([status])
+}
+
+model Subscription {
+  id            String             @id @default(uuid())
+  memberId      String
+  planId        String
+  startDate     DateTime
+  expiryDate    DateTime
+  status        SubscriptionStatus @default(PENDING)
+  paymentStatus PaymentStatus      @default(PENDING)
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  member        Member             @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  plan          MembershipPlan     @relation(fields: [planId], references: [id], onDelete: Restrict)
+  payments      Payment[]
+
+  @@index([memberId])
+  @@index([planId])
+  @@index([status])
+  @@index([paymentStatus])
+  @@index([expiryDate])
+}
+
+model Payment {
+  id             String          @id @default(uuid())
+  memberId       String
+  subscriptionId String?
+  planId         String?
+  amount         Decimal         @db.Decimal(10, 2)
+  currency       String          @default("USD")
+  paymentType    PaymentType     @default(MANUAL)
+  method         PaymentMethod
+  onlineProvider OnlinePaymentProvider?
+  status         PaymentStatus   @default(PENDING)
+  paymentDate    DateTime        @default(now())
+  paidAt         DateTime?
+  reference      String?
+  referenceId    String?
+  invoiceId      String?
+  requestId      String?
+  notes          String?
+  transactionId  String?
+  phoneNumber    String?
+  provider       String?
+  failedReason   String?
+  rawResponse    Json?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  member         Member          @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  subscription   Subscription?   @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+  plan           MembershipPlan? @relation(fields: [planId], references: [id], onDelete: SetNull)
+
+  @@index([memberId])
+  @@index([subscriptionId])
+  @@index([planId])
+  @@index([status])
+  @@index([method])
+  @@index([paymentType])
+  @@index([onlineProvider])
+  @@index([requestId])
+  @@index([paymentDate])
+}
+
+model Attendance {
+  id          String           @id @default(uuid())
+  memberId    String
+  checkInDate DateTime         @default(now())
+  method      AttendanceMethod @default(MANUAL)
+  status      AttendanceStatus @default(PRESENT)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  member      Member           @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@index([memberId])
+  @@index([checkInDate])
+  @@index([status])
+}
+
+model Notification {
+  id          String                 @id @default(uuid())
+  title       String
+  message     String
+  type        NotificationType
+  target      NotificationTarget     @default(ALL_MEMBERS)
+  memberId    String?
+  readStatus  NotificationReadStatus @default(UNREAD)
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
+  member      Member?                @relation(fields: [memberId], references: [id], onDelete: SetNull)
+
+  @@index([type])
+  @@index([target])
+  @@index([memberId])
+  @@index([readStatus])
+  @@index([createdAt])
+}
