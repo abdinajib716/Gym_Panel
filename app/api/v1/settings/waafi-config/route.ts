@@ -3,7 +3,7 @@ import { NextRequest } from "next/server"
 import { createActivityLog } from "@/lib/access-control"
 import { requirePermission } from "@/lib/auth"
 import { withErrorHandling } from "@/lib/error-handler"
-import { getSafeWaafiConfig } from "@/lib/payments/waafi.service"
+import { getSafeWaafiConfig, normalizeWaafiApiBaseUrl } from "@/lib/payments/waafi.service"
 import { prisma } from "@/lib/prisma"
 import { waafiConfigSchema } from "@/lib/validations/access-control"
 
@@ -25,7 +25,7 @@ export async function PUT(request: NextRequest) {
       data: {
         waafiEnabled: payload.waafiEnabled,
         waafiEnvironment: payload.waafiEnvironment,
-        waafiApiBaseUrl: payload.waafiApiBaseUrl || null,
+        waafiApiBaseUrl: payload.waafiApiBaseUrl ? normalizeWaafiApiBaseUrl(payload.waafiApiBaseUrl) : null,
         waafiMerchantUid: payload.waafiMerchantUid || null,
         waafiApiUserId: payload.waafiApiUserId || null,
         waafiMerchantNumber: payload.waafiMerchantNumber || null,

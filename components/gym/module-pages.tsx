@@ -46,12 +46,16 @@ const paymentStatusOptions = [
 
 const paymentMethodOptions = [
   { label: "Cash", value: "CASH" },
+  { label: "Manual EVC", value: "MANUAL_EVC" },
   { label: "EVC manual confirmation", value: "EVC_MANUAL" },
   { label: "Bank transfer", value: "BANK_TRANSFER" },
   { label: "Other manual mobile money", value: "OTHER_MANUAL_MOBILE_MONEY" },
+  { label: "WaafiPay", value: "WAAFI_PAY" },
   { label: "Waafi", value: "WAAFI" },
   { label: "EVC online", value: "EVC_ONLINE" },
 ]
+
+const manualPaymentMethodOptions = paymentMethodOptions.filter((option) => !["WAAFI", "WAAFI_PAY", "EVC_ONLINE"].includes(option.value))
 
 const attendanceStatusOptions = [
   { label: "Present", value: "PRESENT" },
@@ -81,6 +85,19 @@ function nested(record: RecordValue, key: string) {
     if (!current || typeof current !== "object") return undefined
     return (current as RecordValue)[part]
   }, record)
+}
+
+function compactText(value: unknown, fallback = "-") {
+  if (value === null || value === undefined || value === "") return fallback
+  return String(value)
+}
+
+function jsonBlock(value: unknown) {
+  return (
+    <pre className="max-h-72 overflow-auto rounded-md bg-muted/35 p-3 text-xs font-normal text-muted-foreground">
+      {JSON.stringify(value ?? {}, null, 2)}
+    </pre>
+  )
 }
 
 function todayDate() {
@@ -231,7 +248,7 @@ export function PaymentsPage() {
   return (
     <CrudPage
       title="Payments"
-      description="Record manual payments and confirm subscription activation."
+      description="Record manual payments and review WaafiPay transaction responses."
       breadcrumb={["Dashboard", "Payments"]}
       endpoint="/api/v1/payments"
       dataKey="payments"
@@ -257,7 +274,7 @@ export function PaymentsPage() {
         { name: "subscriptionId", label: "Subscription", type: "select", optionsSource: "subscriptions" },
         { name: "planId", label: "Plan", type: "select", optionsSource: "plans", optionLabel: "name" },
         { name: "amount", label: "Amount", type: "number" },
-        { name: "method", label: "Payment method", type: "select", options: paymentMethodOptions },
+        { name: "method", label: "Payment method", type: "select", options: manualPaymentMethodOptions },
         { name: "status", label: "Payment status", type: "select", options: paymentStatusOptions },
         { name: "paymentDate", label: "Payment date", type: "datetime-local" },
         { name: "reference", label: "Reference number" },
@@ -271,7 +288,32 @@ export function PaymentsPage() {
         { key: "amount", label: "Amount", render: (record) => currency(record.amount) },
         { key: "method", label: "Method", render: (record) => <StatusPill value={String(record.method)} /> },
         { key: "status", label: "Status", render: (record) => <StatusPill value={String(record.status)} /> },
-        { key: "paymentDate", label: "Date", render: (record) => shortDate(record.paymentDate) },
+        { key: "transactionId", label: "Transaction", render: (record) => compactText(record.transactionId ?? record.requestId) },
+        { key: "failedReason", label: "Waafi Message", render: (record) => compactText(record.failedReason ?? nested(record, "rawResponse.responseMessage")) },
+      ]}
+      detailFields={[
+        { key: "member.fullName", label: "Member" },
+        { key: "plan.name", label: "Plan" },
+        { key: "amount", label: "Amount", render: (record) => currency(record.amount) },
+        { key: "currency", label: "Currency" },
+        { key: "paymentType", label: "Payment Type", render: (record) => <StatusPill value={String(record.paymentType ?? "MANUAL")} /> },
+        { key: "method", label: "Method", render: (record) => <StatusPill value={String(record.method)} /> },
+        { key: "onlineProvider", label: "Waafi Provider", render: (record) => compactText(record.onlineProvider ?? record.provider) },
+        { key: "status", label: "Status", render: (record) => <StatusPill value={String(record.status)} /> },
+        { key: "phoneNumber", label: "Phone Number" },
+        { key: "requestId", label: "Request ID" },
+        { key: "invoiceId", label: "Invoice ID" },
+        { key: "referenceId", label: "Internal Reference" },
+        { key: "reference", label: "Waafi Order ID" },
+        { key: "transactionId", label: "Waafi Response ID" },
+        { key: "failedReason", label: "Failure Reason" },
+        { key: "rawResponse.body.responseCode", label: "Waafi Response Code" },
+        { key: "rawResponse.body.errorCode", label: "Waafi Error Code" },
+        { key: "rawResponse.body.responseMsg", label: "Waafi Response Message" },
+        { key: "rawResponse.body.params.description", label: "Waafi Description" },
+        { key: "paymentDate", label: "Payment Date", render: (record) => shortDate(record.paymentDate) },
+        { key: "paidAt", label: "Paid At", render: (record) => shortDate(record.paidAt) },
+        { key: "rawResponse", label: "Raw Waafi Response", render: (record) => jsonBlock(record.rawResponse) },
       ]}
     />
   )

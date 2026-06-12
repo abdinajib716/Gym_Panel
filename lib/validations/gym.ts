@@ -85,7 +85,7 @@ export const paymentSchema = z.object({
   planId: optionalText,
   amount: z.coerce.number().nonnegative("Amount is required"),
   currency: z.string().trim().default("USD"),
-  method: z.enum(["CASH", "EVC_MANUAL", "BANK_TRANSFER", "OTHER_MANUAL_MOBILE_MONEY", "WAAFI", "EVC_ONLINE"]),
+  method: z.enum(["CASH", "MANUAL_EVC", "EVC_MANUAL", "BANK_TRANSFER", "OTHER_MANUAL_MOBILE_MONEY", "WAAFI_PAY", "WAAFI", "EVC_ONLINE"]),
   status: z.enum(["PAID", "PENDING", "FAILED", "CANCELLED", "EXPIRED"]).default("PENDING"),
   paymentDate: z.string().trim().min(1, "Payment date is required"),
   reference: optionalText,

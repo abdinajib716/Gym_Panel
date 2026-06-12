@@ -64,6 +64,40 @@ const waafiDefaults = {
   waafiMerchantNumber: "",
 }
 
+type WaafiTestResponse = {
+  ok: boolean
+  httpOk?: boolean
+  waafiOk?: boolean
+  status: number
+  statusText?: string
+  contentType?: string
+  url?: string
+  message: string
+  request?: {
+    requestId: string
+    provider: string
+    phoneNumber: string
+    amount: number
+    currency: string
+  }
+  sentPayload?: unknown
+  waafiResponse?: unknown
+  rawResponse?: string
+}
+
+function getWaafiToastMessage(response: WaafiTestResponse) {
+  if (response.message) return response.message
+  const waafiResponse = response.waafiResponse
+
+  if (waafiResponse && typeof waafiResponse === "object") {
+    const payload = waafiResponse as { responseMsg?: unknown; params?: { description?: unknown } }
+    if (typeof payload.responseMsg === "string") return payload.responseMsg
+    if (typeof payload.params?.description === "string") return payload.params.description
+  }
+
+  return response.ok ? "WaafiPay test request sent" : "WaafiPay test request failed"
+}
+
 function hydrateSettings(settings?: Partial<Record<keyof SettingsFormValues, unknown>> | null): SettingsFormValues {
   const source = (settings ?? {}) as Partial<SettingsFormValues>
 
@@ -99,6 +133,8 @@ export function AccessControlSettingsPage() {
   const [isSavingWaafi, setIsSavingWaafi] = useState(false)
   const [waafiValues, setWaafiValues] = useState(waafiDefaults)
   const [waafiTestPhone, setWaafiTestPhone] = useState("")
+  const [waafiTestAmount, setWaafiTestAmount] = useState("0.01")
+  const [waafiTestResult, setWaafiTestResult] = useState<WaafiTestResponse | null>(null)
   const settingsResetKeyRef = useRef<string | null>(null)
 
   const form = useForm<SettingsFormValues>({
@@ -200,15 +236,21 @@ export function AccessControlSettingsPage() {
   const handleTestWaafi = async () => {
     setIsTesting(true)
     try {
-      const response = await apiRequest<{ message: string }>("/api/v1/settings/waafi-config/test", {
+      const response = await apiRequest<WaafiTestResponse>("/api/v1/settings/waafi-config/test", {
         method: "POST",
         body: {
           phoneLocal: waafiTestPhone,
-          amount: 0.01,
+          amount: Number(waafiTestAmount),
           provider: "EVC_PLUS",
         },
       })
-      toast.success(response.message)
+      setWaafiTestResult(response)
+      const toastMessage = getWaafiToastMessage(response)
+      if (response.ok) {
+        toast.success(toastMessage)
+      } else {
+        toast.error(toastMessage)
+      }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to test WaafiPay connection")
     } finally {
@@ -593,7 +635,7 @@ export function AccessControlSettingsPage() {
 
             <AccessCard
               title="Test Connection"
-              description="Send a minimum test request to WaafiPay. Enter 9 digits after the 252 country code."
+              description="Send a test payment request to WaafiPay. The customer phone receives the trigger, and the server waits up to 90 seconds for Waafi's response."
               action={
                 <Button type="button" variant="outline" className="gap-2" onClick={handleTestWaafi} disabled={isTesting}>
                   {isTesting ? <Spinner /> : <WalletCards className="h-4 w-4" />}
@@ -613,7 +655,65 @@ export function AccessControlSettingsPage() {
                     />
                   </div>
                 </FieldBlock>
+                <FieldBlock label="Amount">
+                  <Input
+                    type="number"
+                    min="0.01"
+                    step="0.01"
+                    value={waafiTestAmount}
+                    onChange={(event) => setWaafiTestAmount(event.target.value)}
+                    placeholder="0.01"
+                  />
+                </FieldBlock>
               </div>
+              {waafiTestResult ? (
+                <div className="mt-5 space-y-3 rounded-lg border border-border/70 bg-muted/30 p-4">
+                  <div className="grid gap-3 text-sm md:grid-cols-3">
+                    <div>
+                      <p className="text-muted-foreground">HTTP status</p>
+                      <p className="font-medium">
+                        {waafiTestResult.httpOk ? "Accepted" : "Failed"} ({waafiTestResult.status}{waafiTestResult.statusText ? ` ${waafiTestResult.statusText}` : ""})
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Waafi status</p>
+                      <p className="font-medium">{waafiTestResult.waafiOk ? "Approved" : "Not approved"}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Amount</p>
+                      <p className="font-medium">
+                        {waafiTestResult.request?.amount ?? "-"} {waafiTestResult.request?.currency ?? ""}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="grid gap-3 text-sm md:grid-cols-2">
+                    <div>
+                      <p className="text-muted-foreground">Endpoint</p>
+                      <p className="break-all font-medium">{waafiTestResult.url ?? "-"}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Request ID</p>
+                      <p className="break-all font-medium">{waafiTestResult.request?.requestId ?? "-"}</p>
+                    </div>
+                  </div>
+                  <div className="grid gap-3 lg:grid-cols-2">
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium">Sent payload</p>
+                      <pre className="max-h-64 overflow-auto rounded-md bg-background p-3 text-xs text-muted-foreground">
+                        {JSON.stringify(waafiTestResult.sentPayload ?? {}, null, 2)}
+                      </pre>
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium">Waafi response</p>
+                      <pre className="max-h-64 overflow-auto rounded-md bg-background p-3 text-xs text-muted-foreground">
+                        {typeof waafiTestResult.waafiResponse === "string"
+                          ? waafiTestResult.waafiResponse || waafiTestResult.rawResponse || ""
+                          : JSON.stringify(waafiTestResult.waafiResponse ?? waafiTestResult.rawResponse ?? {}, null, 2)}
+                      </pre>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
             </AccessCard>
           </TabsContent>
         </Tabs>

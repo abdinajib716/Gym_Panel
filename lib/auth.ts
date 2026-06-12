@@ -8,9 +8,7 @@ import { AppError } from "@/lib/error-handler"
 import { prisma } from "@/lib/prisma"
 import { hasPermission, mapAccessRolesToUserRole } from "@/lib/rbac"
 
-async function loadAccessUserByEmail(email: string) {
-  await ensureAccessControlSeed()
-
+async function findAccessUserByEmail(email: string) {
   return prisma.accessUser.findUnique({
     where: { email },
     include: {
@@ -29,6 +27,14 @@ async function loadAccessUserByEmail(email: string) {
       },
     },
   })
+}
+
+async function loadAccessUserByEmail(email: string) {
+  const existingUser = await findAccessUserByEmail(email)
+  if (existingUser) return existingUser
+
+  await ensureAccessControlSeed()
+  return findAccessUserByEmail(email)
 }
 
 function buildAuthPayload(user: NonNullable<Awaited<ReturnType<typeof loadAccessUserByEmail>>>) {
@@ -62,7 +68,15 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Enter your email and password")
         }
 
-        const user = await loadAccessUserByEmail(credentials.email)
+        let user: Awaited<ReturnType<typeof loadAccessUserByEmail>>
+        try {
+          user = await loadAccessUserByEmail(credentials.email)
+        } catch (error) {
+          if (error instanceof Error && error.name === "PrismaClientInitializationError") {
+            throw new Error("Database connection is unavailable. Please try again in a moment.")
+          }
+          throw error
+        }
 
         if (!user?.passwordHash) {
           throw new Error("Invalid email or password")
@@ -90,7 +104,16 @@ export const authOptions: NextAuthOptions = {
       }
 
       if (token.email) {
-        const dbUser = await loadAccessUserByEmail(token.email)
+        let dbUser: Awaited<ReturnType<typeof loadAccessUserByEmail>> = null
+        try {
+          dbUser = await loadAccessUserByEmail(token.email)
+        } catch (error) {
+          if (error instanceof Error && error.name === "PrismaClientInitializationError") {
+            return token
+          }
+          throw error
+        }
+
         if (dbUser) {
           const authPayload = buildAuthPayload(dbUser)
           token.id = authPayload.id
@@ -130,7 +153,6 @@ export const authOptions: NextAuthOptions = {
 export const getAuthSession = () => getServerSession(authOptions)
 
 export async function requireAuth() {
-  await ensureAccessControlSeed()
   const session = await getAuthSession()
 
   if (!session?.user?.id) {

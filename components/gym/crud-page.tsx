@@ -1,7 +1,7 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { Eye, Pencil, Plus, Trash2 } from "lucide-react"
+import { Copy, Eye, EyeOff, Mail, Pencil, Plus, Trash2 } from "lucide-react"
 import useSWR from "swr"
 import { toast } from "sonner"
 
@@ -75,6 +75,7 @@ type CrudPageProps = {
   recordName: string
   searchPlaceholder: string
   columns: Column[]
+  detailFields?: Column[]
   fields: Field[]
   defaultValues: Record<string, Primitive>
   statusOptions?: Option[]
@@ -159,6 +160,7 @@ export function CrudPage({
   recordName,
   searchPlaceholder,
   columns,
+  detailFields,
   fields,
   defaultValues,
   statusOptions,
@@ -176,6 +178,9 @@ export function CrudPage({
   const [editingRecord, setEditingRecord] = useState<RecordValue | null>(null)
   const [viewRecord, setViewRecord] = useState<RecordValue | null>(null)
   const [loadingDetails, setLoadingDetails] = useState(false)
+  const [loadingCredentials, setLoadingCredentials] = useState(false)
+  const [temporaryPassword, setTemporaryPassword] = useState<string | null>(null)
+  const [showTemporaryPassword, setShowTemporaryPassword] = useState(false)
   const [formValues, setFormValues] = useState<Record<string, Primitive>>(defaultValues)
   const [submitting, setSubmitting] = useState(false)
 
@@ -193,6 +198,7 @@ export function CrudPage({
   const { data, mutate, isLoading } = useSWR<RecordValue>(query, fetcher)
   const records = (data?.[dataKey] as RecordValue[] | undefined) ?? []
   const pagination = data?.pagination as { page: number; pages: number; total: number } | undefined
+  const detailsColumns = detailFields ?? columns
 
   const openCreate = () => {
     setEditingRecord(null)
@@ -208,6 +214,8 @@ export function CrudPage({
 
   const openDetails = async (record: RecordValue) => {
     setViewRecord(record)
+    setTemporaryPassword(null)
+    setShowTemporaryPassword(false)
     setDetailsOpen(true)
     setLoadingDetails(true)
     try {
@@ -219,6 +227,45 @@ export function CrudPage({
     } finally {
       setLoadingDetails(false)
     }
+  }
+
+  const supportsLoginDetails = recordName === "member" || recordName === "trainer"
+  const loginAccount = viewRecord?.mobileAccount as RecordValue | null | undefined
+
+  const loadLoginDetails = async () => {
+    if (!viewRecord?.id || !supportsLoginDetails) return
+    setLoadingCredentials(true)
+    try {
+      const response = await apiRequest<{ temporaryPassword: string | null }>(`${endpoint}/${viewRecord.id}/login-details`)
+      setTemporaryPassword(response.temporaryPassword)
+      setShowTemporaryPassword(true)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to load login details")
+    } finally {
+      setLoadingCredentials(false)
+    }
+  }
+
+  const resendWelcomeEmail = async () => {
+    if (!viewRecord?.id || !supportsLoginDetails) return
+    setLoadingCredentials(true)
+    try {
+      const response = await apiRequest<{ message: string }>(`${endpoint}/${viewRecord.id}/resend-welcome-email`, {
+        method: "POST",
+      })
+      toast.success(response.message)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to resend welcome email")
+    } finally {
+      setLoadingCredentials(false)
+    }
+  }
+
+  const copyLoginDetails = async () => {
+    const username = String(loginAccount?.username ?? loginAccount?.loginEmail ?? loginAccount?.loginPhone ?? "")
+    const passwordText = temporaryPassword ? `Temporary Password: ${temporaryPassword}` : "Temporary Password: Hidden"
+    await navigator.clipboard.writeText(`Username: ${username}\n${passwordText}`)
+    toast.success("Login details copied")
   }
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -480,8 +527,42 @@ export function CrudPage({
           </SheetHeader>
           <div className="space-y-3 p-6">
             {loadingDetails ? <TableSkeleton columns={1} rows={3} /> : null}
+            {supportsLoginDetails && loginAccount ? (
+              <div className="rounded-xl border border-border/70 bg-card px-4 py-3">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Login Details</p>
+                    <div className="mt-3 grid gap-2 text-sm">
+                      <p><span className="font-medium">Email:</span> {formatCell(loginAccount.loginEmail)}</p>
+                      <p><span className="font-medium">Phone:</span> {formatCell(loginAccount.loginPhone)}</p>
+                      <p><span className="font-medium">Username:</span> {formatCell(loginAccount.username)}</p>
+                      <p><span className="font-medium">Account status:</span> {formatCell(loginAccount.accountStatus)}</p>
+                      <p><span className="font-medium">Password change required:</span> {loginAccount.mustChangePassword ? "Yes" : "No"}</p>
+                      <p>
+                        <span className="font-medium">Temporary password:</span>{" "}
+                        {showTemporaryPassword ? temporaryPassword || "Not available" : "Hidden"}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <Button type="button" variant="outline" size="sm" className="gap-2" onClick={loadLoginDetails} disabled={loadingCredentials}>
+                      {showTemporaryPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                      {loadingCredentials ? "Loading..." : showTemporaryPassword ? "Refresh" : "Show Password"}
+                    </Button>
+                    <Button type="button" variant="outline" size="sm" className="gap-2" onClick={copyLoginDetails}>
+                      <Copy className="h-3.5 w-3.5" />
+                      Copy
+                    </Button>
+                    <Button type="button" variant="outline" size="sm" className="gap-2" onClick={resendWelcomeEmail} disabled={loadingCredentials}>
+                      <Mail className="h-3.5 w-3.5" />
+                      Resend Email
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ) : null}
             {viewRecord
-              ? columns.map((column) => (
+              ? detailsColumns.map((column) => (
                   <div key={column.key} className="rounded-xl border border-border/70 bg-card px-4 py-3">
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">{column.label}</p>
                     <div className="mt-2 text-sm font-medium">

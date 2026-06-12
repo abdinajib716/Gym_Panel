@@ -6,6 +6,7 @@ import { withErrorHandling } from "@/lib/error-handler"
 import {
   buildWaafiPayload,
   buildWaafiRequestId,
+  getWaafiResponseMessage,
   getWaafiConfig,
   normalizeSomaliaPhoneNumber,
   sendWaafiPaymentRequest,
@@ -32,6 +33,7 @@ export async function POST(request: NextRequest) {
       referenceId: `TEST-${requestId}`,
       invoiceId: `TEST-INV-${requestId}`,
       requestId,
+      description: "Gym WaafiPay test payment",
     })
 
     const response = await sendWaafiPaymentRequest(waafiPayload, config.waafiApiBaseUrl || "")
@@ -44,16 +46,40 @@ export async function POST(request: NextRequest) {
       userDisplay: session.user.name || session.user.email || "System Admin",
       metadata: {
         ok: response.ok,
+        waafiOk: response.waafiOk,
         status: response.status,
         provider: payload.provider,
         phoneNumber,
+        amount: payload.amount,
+        requestId,
       },
     })
 
     return {
-      ok: response.ok,
+      ok: response.ok && response.waafiOk,
+      httpOk: response.ok,
+      waafiOk: response.waafiOk,
       status: response.status,
-      message: response.ok ? "WaafiPay test request sent" : "WaafiPay test request failed",
+      statusText: response.statusText,
+      contentType: response.contentType,
+      url: response.url,
+      message: getWaafiResponseMessage(response.body) || (response.ok && response.waafiOk ? "WaafiPay test request sent" : "WaafiPay test request failed"),
+      request: {
+        requestId,
+        provider: payload.provider,
+        phoneNumber,
+        amount: payload.amount,
+        currency: "USD",
+      },
+      sentPayload: {
+        ...waafiPayload,
+        serviceParams: {
+          ...waafiPayload.serviceParams,
+          apiKey: "***",
+        },
+      },
+      waafiResponse: response.body,
+      rawResponse: response.rawText,
     }
   }, { path: "/api/v1/settings/waafi-config/test", method: "POST" })
 }

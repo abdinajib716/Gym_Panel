@@ -6,6 +6,7 @@ import { emptyToNull, optionalDate, paginationMeta } from "@/lib/gym-api"
 import { withErrorHandling } from "@/lib/error-handler"
 import { prisma } from "@/lib/prisma"
 import { gymPaginationQuerySchema, memberCreateSchema } from "@/lib/validations/gym"
+import { createMemberMobileAccount, credentialMessage } from "@/lib/mobile-credentials"
 
 export async function GET(request: NextRequest) {
   return withErrorHandling(async () => {
@@ -137,6 +138,19 @@ export async function POST(request: NextRequest) {
         : undefined,
     })
 
-    return { member, message: payload.initialPlanId ? "Member, subscription, and payment created successfully" : "Member created successfully" }
+    const credentials = await createMemberMobileAccount({
+      memberId: member.id,
+      actor: {
+        id: session.user.id,
+        name: session.user.name,
+        email: session.user.email,
+      },
+    })
+
+    return {
+      member,
+      emailStatus: credentials.emailStatus,
+      message: credentialMessage("Member", credentials.emailStatus),
+    }
   }, { path: "/api/v1/members", method: "POST" })
 }

@@ -1,7 +1,7 @@
 # Gym Management Integration Task List
 
 Created: 2026-06-11
-Last updated: 2026-06-11
+Last updated: 2026-06-12
 
 ## Status Legend
 
@@ -372,3 +372,151 @@ Last updated: 2026-06-11
 - [x] Settings form no longer uses root-level `form.watch()` subscriptions.
 - [x] Settings save updates SWR cache without forcing a re-fetch/reset.
 - [x] Authenticated Site Appearance save returned `200` without seed-stack error.
+- [x] Waafi Test Connection includes a user-entered amount.
+- [x] Waafi Test Connection returns request details and raw Waafi API response.
+- [x] Waafi Test Connection shows failed Waafi responses as error feedback.
+- [x] README replaced with Gym Management Admin Panel tech stack and end-to-end feature documentation.
+- [x] Waafi API URL is normalized before requests and config display.
+- [x] Existing malformed Waafi API URL was saved back as `https://api.waafipay.net/asm`.
+- [x] Waafi payload includes documented `description` field and UUID request ID.
+- [x] Waafi Test Connection waits up to 90 seconds for the customer phone response.
+- [x] Build no longer depends on remote Google font downloads.
+- [x] Waafi Test Connection toast shows Waafi `responseMsg`, including wrong PIN messages.
+- [x] Waafi online payments store response ID, order ID, response message, failure reason, and raw response.
+- [x] Payments list and detail drawer show Waafi transaction lifecycle fields end to end.
+
+## Phase 2: Dedicated Mobile API Guardrails
+
+- [x] Read Phase 2 mobile API brief end to end from pasted requirements.
+- [x] Confirmed existing admin routes and mobile routes must stay separated.
+- [x] Confirmed admin routes continue to manage the system.
+- [x] Confirmed mobile routes only expose trainer/member self-scoped data.
+- [x] Do not change existing admin authentication, layout, sidebar, roles, permissions, settings, Access Control, or gym CRUD behavior unless a mobile requirement explicitly needs shared data support.
+- [x] Keep mobile APIs under `/api/mobile/*`.
+- [x] Add mobile-specific auth/session/token handling without replacing existing NextAuth admin flow.
+- [ ] Add mobile validation schemas separately from admin CRUD validation where payloads differ.
+- [x] Add mobile response shaping so apps receive simple, safe payloads.
+- [~] Add tests or smoke checks for mobile authorization boundaries.
+
+## Module 13: Mobile Data Model Preparation
+
+- [x] Review current Prisma models against mobile requirements.
+- [x] Decide whether trainers and members need mobile login credentials on existing `Trainer` and `Member` records or a separate mobile account table.
+- [x] Plan password reset token/code storage.
+- [ ] Plan trainer workout models.
+- [ ] Plan workout exercise model.
+- [ ] Plan workout assignment model.
+- [ ] Plan trainer/member progress note model.
+- [ ] Plan trainer schedule/session model if current plan/subscription data is not enough.
+- [ ] Plan notification targeting for trainer recipients.
+- [x] Add Prisma changes only after plan is confirmed.
+- [x] Run `npm run db:push` only after schema changes are approved.
+
+## Prerequisite: Welcome Emails, Credentials, and Admin Password Reset
+
+- [x] Read welcome email and credential brief end to end.
+- [x] Add real SMTP mail service using existing Email Configuration.
+- [x] Add member welcome email template.
+- [x] Add trainer welcome email template.
+- [x] Add admin password reset email template.
+- [x] Add mobile login account storage linked to members/trainers.
+- [x] Generate secure temporary passwords for member/trainer accounts.
+- [x] Store password hashes for future mobile login.
+- [x] Store temporary password fallback encrypted.
+- [x] Set `mustChangePassword` for generated accounts.
+- [x] Create member mobile login account after admin creates member.
+- [x] Create trainer mobile login account after admin creates trainer.
+- [x] Send welcome email when member/trainer has email.
+- [x] Do not rollback member/trainer creation if welcome email fails.
+- [x] Add credential view permissions.
+- [x] Add credential resend email permissions.
+- [x] Add member login details endpoint.
+- [x] Add trainer login details endpoint.
+- [x] Add member resend welcome email endpoint.
+- [x] Add trainer resend welcome email endpoint.
+- [x] Add Login Details fallback section to View Details.
+- [x] Add Show Password button for temporary password fallback.
+- [x] Add Copy Login Details button.
+- [x] Add Resend Welcome Email button.
+- [x] Add admin Forgot Password link on sign-in page.
+- [x] Add admin forgot-password API.
+- [x] Add admin reset-password API.
+- [x] Run `npm run db:push`.
+- [x] Run `npm run build`.
+
+## Module 14: Shared Mobile Auth API
+
+- [x] Route: `POST /api/mobile/auth/login`.
+- [x] Route: `POST /api/mobile/auth/forgot-password`.
+- [x] Route: `POST /api/mobile/auth/reset-password`.
+- [x] Route: `POST /api/mobile/auth/logout`.
+- [x] Route: `GET /api/mobile/auth/me`.
+- [x] Support trainer login by phone/email and password.
+- [x] Support member login by phone/email and password.
+- [x] Return mobile token, role, and safe user profile.
+- [x] Ensure disabled/inactive/suspended users cannot log in.
+- [x] Ensure mobile auth does not alter admin NextAuth behavior.
+- [x] Normalize mobile login phone identifiers across `061...`, `61...`, and `25261...` formats.
+- [x] Module complete.
+
+## Module 15: Member Mobile API
+
+- [ ] Route: `GET /api/mobile/member/dashboard`.
+- [ ] Route: `GET /api/mobile/member/subscription/current`.
+- [ ] Route: `GET /api/mobile/member/subscription/history`.
+- [ ] Route: `GET /api/mobile/member/plans`.
+- [ ] Route: `POST /api/mobile/member/subscription/upgrade`.
+- [ ] Route: `POST /api/mobile/member/subscription/renew`.
+- [ ] Route: `POST /api/mobile/member/payments/waafi/initiate`.
+- [ ] Route: `GET /api/mobile/member/payments/waafi/status/:paymentId`.
+- [ ] Route: `GET /api/mobile/member/payments/history`.
+- [ ] Route: `GET /api/mobile/member/notifications`.
+- [ ] Route: `PATCH /api/mobile/member/notifications/:notificationId/read`.
+- [ ] Member can only access own dashboard, subscription, payments, and notifications.
+- [ ] Member cannot register from mobile app.
+- [ ] Upgrade/renew creates pending subscription until payment succeeds.
+- [ ] Waafi payment uses existing server-side Waafi service and stores full transaction response.
+- [ ] Successful payment activates subscription and notifies member.
+- [ ] Failed payment stores Waafi failure reason and notifies member.
+- [ ] Module complete.
+
+## Module 16: Trainer Mobile API
+
+- [ ] Route: `GET /api/mobile/trainer/dashboard`.
+- [ ] Route: `GET /api/mobile/trainer/members`.
+- [ ] Route: `GET /api/mobile/trainer/members/:memberId`.
+- [ ] Route: `GET /api/mobile/trainer/members/:memberId/subscription`.
+- [ ] Route: `GET /api/mobile/trainer/schedule/today`.
+- [ ] Route: `GET /api/mobile/trainer/schedule`.
+- [ ] Route: `GET /api/mobile/trainer/workouts`.
+- [ ] Route: `POST /api/mobile/trainer/workouts`.
+- [ ] Route: `GET /api/mobile/trainer/workouts/:workoutId`.
+- [ ] Route: `PUT /api/mobile/trainer/workouts/:workoutId`.
+- [ ] Route: `DELETE /api/mobile/trainer/workouts/:workoutId`.
+- [ ] Route: `POST /api/mobile/trainer/workouts/:workoutId/assign-member`.
+- [ ] Route: `GET /api/mobile/trainer/members/:memberId/workouts`.
+- [ ] Route: `POST /api/mobile/trainer/members/:memberId/progress-note`.
+- [ ] Route: `GET /api/mobile/trainer/members/:memberId/attendance`.
+- [ ] Route: `GET /api/mobile/trainer/notifications`.
+- [ ] Route: `PATCH /api/mobile/trainer/notifications/:notificationId/read`.
+- [ ] Trainer can only access own profile.
+- [ ] Trainer can only see assigned members.
+- [ ] Trainer cannot view all gym members.
+- [ ] Trainer cannot view member payment details.
+- [ ] Trainer can only manage workouts created by himself.
+- [ ] Trainer can only assign workouts to his assigned members.
+- [ ] Module complete.
+
+## Phase 2 Verification Checklist
+
+- [x] `npm run build`.
+- [x] `npm run db:push` if Prisma schema changes are added.
+- [ ] Mobile auth login works for trainer.
+- [ ] Mobile auth login works for member.
+- [ ] Mobile `/me` returns only safe profile data.
+- [~] E2E mobile login smoke was attempted, but the remote Neon database connection was unreachable during record creation.
+- [ ] Trainer cannot access unassigned member.
+- [ ] Trainer cannot access admin-only data.
+- [ ] Member cannot access another member's data.
+- [ ] Member Waafi payment stores request id, invoice id, transaction id, order id, response message, status, and raw response.
+- [ ] Existing admin panel routes still work after mobile API changes.

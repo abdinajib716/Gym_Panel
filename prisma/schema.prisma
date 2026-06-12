@@ -58,6 +58,7 @@ model AccessUser {
   updatedAt    DateTime            @updatedAt
   roles        AccessUserRole[]
   activityLogs AccessActivityLog[] @relation("ActivityActor")
+  passwordResets AccessPasswordReset[]
 }
 
 model AccessRole {
@@ -215,6 +216,70 @@ enum TrainerStatus {
   INACTIVE
 }
 
+enum MobileAccountRole {
+  MEMBER
+  TRAINER
+}
+
+enum MobileAccountStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+model MobileAccount {
+  id                         String              @id @default(uuid())
+  role                       MobileAccountRole
+  loginEmail                 String?
+  loginPhone                 String?
+  passwordHash               String
+  temporaryPasswordEncrypted String?
+  mustChangePassword         Boolean             @default(true)
+  passwordChangedAt          DateTime?
+  lastLoginAt                DateTime?
+  accountStatus              MobileAccountStatus @default(ACTIVE)
+  welcomeEmailSentAt         DateTime?
+  welcomeEmailError          String?
+  memberId                   String?             @unique
+  trainerId                  String?             @unique
+  createdAt                  DateTime            @default(now())
+  updatedAt                  DateTime            @updatedAt
+  member                     Member?             @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  trainer                    Trainer?            @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  passwordResets             MobilePasswordReset[]
+
+  @@index([role])
+  @@index([loginEmail])
+  @@index([loginPhone])
+  @@index([accountStatus])
+}
+
+model AccessPasswordReset {
+  id        String     @id @default(uuid())
+  userId    String
+  codeHash  String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime   @default(now())
+  user      AccessUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model MobilePasswordReset {
+  id        String        @id @default(uuid())
+  accountId String
+  codeHash  String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime      @default(now())
+  account   MobileAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId])
+  @@index([expiresAt])
+}
+
 model Member {
   id               String          @id @default(uuid())
   fullName         String
@@ -234,6 +299,7 @@ model Member {
   payments         Payment[]
   attendance       Attendance[]
   notifications    Notification[]
+  mobileAccount    MobileAccount?
 
   @@index([fullName])
   @@index([phoneNumber])
@@ -253,6 +319,7 @@ model Trainer {
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   members      Member[]
+  mobileAccount MobileAccount?
 
   @@index([fullName])
   @@index([status])

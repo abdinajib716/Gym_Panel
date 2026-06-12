@@ -30,7 +30,11 @@ export async function GET(request: NextRequest) {
             OR: [
               { member: { fullName: { contains: search, mode: "insensitive" as const } } },
               { reference: { contains: search, mode: "insensitive" as const } },
+              { referenceId: { contains: search, mode: "insensitive" as const } },
+              { invoiceId: { contains: search, mode: "insensitive" as const } },
+              { requestId: { contains: search, mode: "insensitive" as const } },
               { transactionId: { contains: search, mode: "insensitive" as const } },
+              { failedReason: { contains: search, mode: "insensitive" as const } },
             ],
         }
       : {}),

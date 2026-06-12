@@ -3,6 +3,7 @@ import { NextRequest } from "next/server"
 import { createActivityLog, ensureAccessControlSeed } from "@/lib/access-control"
 import { requirePermission } from "@/lib/auth"
 import { AppError, withErrorHandling } from "@/lib/error-handler"
+import { sendConfiguredEmail } from "@/lib/email/email.service"
 import { prisma } from "@/lib/prisma"
 
 export async function POST(request: NextRequest) {
@@ -27,6 +28,16 @@ export async function POST(request: NextRequest) {
     if (!targetEmail) {
       throw new AppError(400, "Please provide a valid destination email")
     }
+
+    await sendConfiguredEmail({
+      to: targetEmail,
+      subject: `${settings.siteName} email configuration test`,
+      text: `Hello,
+
+This is a test email from ${settings.siteName}.
+
+Your email configuration is working.`,
+    })
 
     await createActivityLog({
       type: "settings",

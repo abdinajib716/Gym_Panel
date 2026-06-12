@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
   return withErrorHandling(async () => {
     const session = await requirePermission("payments.manual_create")
     const payload = paymentSchema.parse(await request.json())
-    if (payload.method === "WAAFI" || payload.method === "EVC_ONLINE") {
+    if (payload.method === "WAAFI" || payload.method === "WAAFI_PAY" || payload.method === "EVC_ONLINE") {
       throw new AppError(400, "Manual payment route only accepts manual payment methods")
     }
     const manualMethod = payload.method === "EVC_MANUAL" ? "MANUAL_EVC" : payload.method

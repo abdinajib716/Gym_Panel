@@ -5,6 +5,9 @@ import {
   buildWaafiPayload,
   buildWaafiRequestId,
   getWaafiConfig,
+  getWaafiOrderId,
+  getWaafiResponseId,
+  getWaafiResponseMessage,
   mapWaafiStatus,
   normalizeSomaliaPhoneNumber,
   sendWaafiPaymentRequest,
@@ -250,6 +253,7 @@ export async function initiateWaafiPayment(input: {
     referenceId,
     invoiceId,
     requestId,
+    description: `Gym subscription payment for ${member.fullName}`,
   })
 
   let waafiResponse: Awaited<ReturnType<typeof sendWaafiPaymentRequest>>
@@ -267,15 +271,30 @@ export async function initiateWaafiPayment(input: {
     throw new AppError(502, "WaafiPay request failed")
   }
 
-  const status = waafiResponse.ok ? mapWaafiStatus(waafiResponse.body) : "FAILED"
+  const status = waafiResponse.ok && waafiResponse.waafiOk ? mapWaafiStatus(waafiResponse.body) : "FAILED"
+  const waafiResponseMessage = getWaafiResponseMessage(waafiResponse.body)
+  const waafiResponseId = getWaafiResponseId(waafiResponse.body)
+  const waafiOrderId = getWaafiOrderId(waafiResponse.body)
 
   const updatedPayment = await prisma.payment.update({
     where: { id: payment.id },
     data: {
       status,
       paidAt: status === "PAID" ? new Date() : null,
-      failedReason: status === "FAILED" ? "WaafiPay request failed" : null,
-      rawResponse: waafiResponse.body as never,
+      failedReason: status === "FAILED" ? waafiResponseMessage || "WaafiPay request failed" : null,
+      transactionId: waafiResponseId,
+      reference: waafiOrderId || null,
+      rawResponse: {
+        httpStatus: waafiResponse.status,
+        httpOk: waafiResponse.ok,
+        waafiOk: waafiResponse.waafiOk,
+        contentType: waafiResponse.contentType,
+        responseId: waafiResponseId,
+        orderId: waafiOrderId,
+        responseMessage: waafiResponseMessage,
+        body: waafiResponse.body,
+        rawText: waafiResponse.rawText,
+      } as never,
     },
   })
 
@@ -285,7 +304,7 @@ export async function initiateWaafiPayment(input: {
     await prisma.notification.create({
       data: {
         title: "Payment failed",
-        message: "Your WaafiPay payment could not be completed. Please try again.",
+        message: waafiResponseMessage || "Your WaafiPay payment could not be completed. Please try again.",
         type: "PAYMENT_REMINDER",
         target: "SINGLE_MEMBER",
         memberId: member.id,

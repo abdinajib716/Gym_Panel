@@ -4,6 +4,8 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  --font-dm-sans: "Segoe UI", Arial, sans-serif;
+  --font-space-grotesk: "Segoe UI", Arial, sans-serif;
   --background: oklch(0.98 0.01 90);
   --foreground: oklch(0.25 0.02 280);
   --card: oklch(1 0 0);

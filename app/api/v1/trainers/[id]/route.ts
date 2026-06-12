@@ -6,6 +6,7 @@ import { AppError, withErrorHandling } from "@/lib/error-handler"
 import { emptyToNull } from "@/lib/gym-api"
 import { prisma } from "@/lib/prisma"
 import { trainerUpdateSchema } from "@/lib/validations/gym"
+import { safeMobileAccount } from "@/lib/mobile-credentials"
 
 export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   return withErrorHandling(async () => {
@@ -14,14 +15,19 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 
     const trainer = await prisma.trainer.findUnique({
       where: { id },
-      include: { members: { orderBy: { fullName: "asc" } } },
+      include: { members: { orderBy: { fullName: "asc" } }, mobileAccount: true },
     })
 
     if (!trainer) {
       throw new AppError(404, "Trainer not found")
     }
 
-    return { trainer }
+    return {
+      trainer: {
+        ...trainer,
+        mobileAccount: trainer.mobileAccount ? safeMobileAccount(trainer.mobileAccount) : null,
+      },
+    }
   }, { path: "/api/v1/trainers/[id]", method: "GET" })
 }
 

@@ -6,6 +6,7 @@ import { withErrorHandling } from "@/lib/error-handler"
 import { emptyToNull, paginationMeta } from "@/lib/gym-api"
 import { prisma } from "@/lib/prisma"
 import { gymPaginationQuerySchema, trainerSchema } from "@/lib/validations/gym"
+import { createTrainerMobileAccount, credentialMessage } from "@/lib/mobile-credentials"
 
 export async function GET(request: NextRequest) {
   return withErrorHandling(async () => {
@@ -74,6 +75,19 @@ export async function POST(request: NextRequest) {
       userDisplay: session.user.name || session.user.email || "System Admin",
     })
 
-    return { trainer, message: "Trainer created successfully" }
+    const credentials = await createTrainerMobileAccount({
+      trainerId: trainer.id,
+      actor: {
+        id: session.user.id,
+        name: session.user.name,
+        email: session.user.email,
+      },
+    })
+
+    return {
+      trainer,
+      emailStatus: credentials.emailStatus,
+      message: credentialMessage("Trainer", credentials.emailStatus),
+    }
   }, { path: "/api/v1/trainers", method: "POST" })
 }

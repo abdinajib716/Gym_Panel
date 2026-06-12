@@ -57,6 +57,15 @@ export function handleError(error: unknown, context?: { path?: string; method?: 
     return NextResponse.json({ error: "Invalid data provided" }, { status: 400 })
   }
 
+  if (error instanceof Prisma.PrismaClientInitializationError) {
+    return NextResponse.json(
+      {
+        error: "Database connection is unavailable. Please check the PostgreSQL connection and try again.",
+      },
+      { status: 503 },
+    )
+  }
+
   if (error instanceof AppError) {
     return NextResponse.json(
       {

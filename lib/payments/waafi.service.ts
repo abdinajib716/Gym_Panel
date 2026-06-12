@@ -5,6 +5,14 @@ import { prisma } from "@/lib/prisma"
 
 export type WaafiProvider = "EVC_PLUS" | "JEEB" | "ZAAD" | "SAHAL"
 
+export function normalizeWaafiApiBaseUrl(input?: string | null) {
+  const value = (input || "").trim()
+  const matches = value.split(/(?=https?:\/\/)/).map((part) => part.trim()).filter(Boolean)
+
+  if (!matches?.length) return value
+  return matches[matches.length - 1]
+}
+
 export function normalizeSomaliaPhoneNumber(input: string) {
   const digits = input.replace(/\D/g, "")
   let normalized = digits
@@ -25,8 +33,16 @@ export function normalizeSomaliaPhoneNumber(input: string) {
 }
 
 export function buildWaafiRequestId() {
-  const timestamp = new Date().toISOString().replace(/\D/g, "").slice(0, 14)
-  return `REQ-${timestamp}-${randomUUID().slice(0, 8).toUpperCase()}`
+  return randomUUID()
+}
+
+function formatWaafiTimestamp() {
+  const now = new Date()
+  const pad = (value: number, length = 2) => String(value).padStart(length, "0")
+  return [
+    `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`,
+    `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}.${pad(now.getMilliseconds(), 3)}`,
+  ].join(" ")
 }
 
 export async function getWaafiConfig() {
@@ -47,7 +63,7 @@ export async function getSafeWaafiConfig() {
   return {
     waafiEnabled: settings.waafiEnabled,
     waafiEnvironment: settings.waafiEnvironment as "test" | "live",
-    waafiApiBaseUrl: settings.waafiApiBaseUrl,
+    waafiApiBaseUrl: normalizeWaafiApiBaseUrl(settings.waafiApiBaseUrl),
     waafiMerchantUid: settings.waafiMerchantUid,
     waafiApiUserId: settings.waafiApiUserId,
     waafiMerchantNumber: settings.waafiMerchantNumber,
@@ -61,7 +77,7 @@ export function validateWaafiConfig(config: Awaited<ReturnType<typeof getWaafiCo
   }
 
   const missing = [
-    ["API Base URL", config.waafiApiBaseUrl],
+    ["API Base URL", normalizeWaafiApiBaseUrl(config.waafiApiBaseUrl)],
     ["Merchant UID", config.waafiMerchantUid],
     ["API User ID", config.waafiApiUserId],
     ["API Key", config.waafiApiKey],
@@ -82,11 +98,12 @@ export function buildWaafiPayload(input: {
   referenceId: string
   invoiceId: string
   requestId: string
+  description?: string
 }) {
   return {
     schemaVersion: "1.0",
     requestId: input.requestId,
-    timestamp: new Date().toISOString(),
+    timestamp: formatWaafiTimestamp(),
     channelName: "WEB",
     serviceName: "API_PURCHASE",
     serviceParams: {
@@ -102,12 +119,55 @@ export function buildWaafiPayload(input: {
         invoiceId: input.invoiceId,
         amount: input.amount,
         currency: input.currency,
+        description: input.description || `Gym payment ${input.referenceId}`,
       },
     },
   }
 }
 
+export function isWaafiSuccess(response: unknown) {
+  if (!response || typeof response !== "object") return false
+  const payload = response as {
+    responseCode?: string | number
+    errorCode?: string | number
+    responseMsg?: string
+    params?: { state?: string }
+  }
+  const responseCode = String(payload.responseCode ?? "")
+  const errorCode = String(payload.errorCode ?? "")
+  const state = String(payload.params?.state ?? "").toUpperCase()
+
+  return responseCode === "2001" && (errorCode === "0" || errorCode === "") && ["APPROVED", "SUCCESS", "COMPLETED"].some((value) => state.includes(value))
+}
+
+export function getWaafiResponseMessage(response: unknown) {
+  if (!response || typeof response !== "object") return null
+  const payload = response as {
+    responseMsg?: unknown
+    params?: { description?: unknown }
+  }
+
+  return typeof payload.responseMsg === "string"
+    ? payload.responseMsg
+    : typeof payload.params?.description === "string"
+      ? payload.params.description
+      : null
+}
+
+export function getWaafiResponseId(response: unknown) {
+  if (!response || typeof response !== "object") return null
+  const payload = response as { responseId?: unknown }
+  return typeof payload.responseId === "string" ? payload.responseId : null
+}
+
+export function getWaafiOrderId(response: unknown) {
+  if (!response || typeof response !== "object") return null
+  const payload = response as { params?: { orderId?: unknown } }
+  return typeof payload.params?.orderId === "string" ? payload.params.orderId : null
+}
+
 export function mapWaafiStatus(response: unknown): "PAID" | "PENDING" | "FAILED" | "CANCELLED" {
+  if (isWaafiSuccess(response)) return "PAID"
   const text = JSON.stringify(response).toLowerCase()
   if (text.includes("success") || text.includes("paid") || text.includes("approved")) return "PAID"
   if (text.includes("cancel")) return "CANCELLED"
@@ -115,19 +175,60 @@ export function mapWaafiStatus(response: unknown): "PAID" | "PENDING" | "FAILED"
   return "PENDING"
 }
 
-export async function sendWaafiPaymentRequest(payload: unknown, apiBaseUrl: string) {
+export async function sendWaafiPaymentRequest(payload: unknown, apiBaseUrl: string, timeoutMs = 90000) {
   const controller = new AbortController()
-  const timeout = setTimeout(() => controller.abort(), 15000)
+  const timeout = setTimeout(() => controller.abort(), timeoutMs)
+  const url = normalizeWaafiApiBaseUrl(apiBaseUrl)
 
   try {
-    const response = await fetch(apiBaseUrl, {
+    const response = await fetch(url, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Accept": "application/json", "Content-Type": "application/json" },
       body: JSON.stringify(payload),
       signal: controller.signal,
     })
-    const body = await response.json().catch(() => ({ ok: response.ok, status: response.status }))
-    return { ok: response.ok, status: response.status, body }
+    const contentType = response.headers.get("content-type") || ""
+    const rawText = await response.text()
+    let body: unknown = rawText
+
+    if (contentType.includes("application/json")) {
+      try {
+        body = JSON.parse(rawText)
+      } catch {
+        body = { rawText }
+      }
+    }
+
+    return {
+      ok: response.ok,
+      waafiOk: isWaafiSuccess(body),
+      status: response.status,
+      statusText: response.statusText,
+      contentType,
+      url,
+      body,
+      rawText,
+    }
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      const body = {
+        responseMsg: "WaafiPay request timed out while waiting for customer response",
+        timeoutMs,
+      }
+
+      return {
+        ok: false,
+        waafiOk: false,
+        status: 504,
+        statusText: "Gateway Timeout",
+        contentType: "application/json",
+        url,
+        body,
+        rawText: JSON.stringify(body),
+      }
+    }
+
+    throw error
   } finally {
     clearTimeout(timeout)
   }

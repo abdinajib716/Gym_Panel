@@ -6,6 +6,7 @@ import { AppError, withErrorHandling } from "@/lib/error-handler"
 import { emptyToNull, optionalDate } from "@/lib/gym-api"
 import { prisma } from "@/lib/prisma"
 import { memberUpdateSchema } from "@/lib/validations/gym"
+import { safeMobileAccount } from "@/lib/mobile-credentials"
 
 export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   return withErrorHandling(async () => {
@@ -20,6 +21,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
         payments: { include: { plan: true, subscription: true }, orderBy: { paymentDate: "desc" } },
         attendance: { orderBy: { checkInDate: "desc" } },
         notifications: { orderBy: { createdAt: "desc" } },
+        mobileAccount: true,
       },
     })
 
@@ -27,7 +29,12 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
       throw new AppError(404, "Member not found")
     }
 
-    return { member }
+    return {
+      member: {
+        ...member,
+        mobileAccount: member.mobileAccount ? safeMobileAccount(member.mobileAccount) : null,
+      },
+    }
   }, { path: "/api/v1/members/[id]", method: "GET" })
 }
 
