@@ -33,6 +33,7 @@ The system keeps the existing admin foundation intact: authentication, dashboard
 - Loading, empty, validation, and toast states across admin workflows.
 - Admin forgot-password and reset-password flow using the existing Email Configuration.
 - Automatic member/trainer mobile login credential generation after admin creates a record.
+- Bulk delete support across gym CRUD tables.
 
 ## Gym Modules
 
@@ -48,6 +49,7 @@ The system keeps the existing admin foundation intact: authentication, dashboard
 - Notifications for announcements, payment reminders, subscription expiry, upgrade confirmations, and general messages.
 - Mobile device token registration for member/trainer push notifications.
 - Reports for members, subscriptions, payments, attendance, and revenue.
+- CSV and PDF report exports with human-readable column labels.
 
 ## Access Control
 
@@ -148,6 +150,8 @@ Mobile auth supports member and trainer accounts created by the admin panel. It 
 - `/api/v1/attendance`
 - `/api/v1/notifications`
 - `/api/v1/reports/[report]`
+- `/api/v1/reports/[report]/export`
+- `/api/v1/bulk-delete`
 - `/api/v1/access-control/*`
 - `/api/v1/settings/waafi-config`
 - `/api/v1/settings/waafi-config/test`

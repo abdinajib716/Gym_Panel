@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Copy, Eye, EyeOff, Mail, Pencil, Plus, Trash2 } from "lucide-react"
 import useSWR from "swr"
 import { toast } from "sonner"
@@ -258,6 +258,8 @@ export function CrudPage({
   const [showTemporaryPassword, setShowTemporaryPassword] = useState(false)
   const [formValues, setFormValues] = useState<Record<string, Primitive>>(defaultValues)
   const [submitting, setSubmitting] = useState(false)
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
+  const [bulkDeleting, setBulkDeleting] = useState(false)
 
   const query = useMemo(() => {
     const params = new URLSearchParams()
@@ -274,6 +276,13 @@ export function CrudPage({
   const records = (data?.[dataKey] as RecordValue[] | undefined) ?? []
   const pagination = data?.pagination as { page: number; pages: number; total: number } | undefined
   const detailsColumns = detailFields ?? columns
+  const bulkDeleteResource = endpoint.split("/").filter(Boolean).pop() || dataKey
+  const visibleRecordIds = records.map((record) => String(record.id)).filter(Boolean)
+  const allVisibleSelected = visibleRecordIds.length > 0 && visibleRecordIds.every((id) => selectedIds.includes(id))
+
+  useEffect(() => {
+    setSelectedIds((current) => current.filter((id) => visibleRecordIds.includes(id)))
+  }, [visibleRecordIds.join("|")])
 
   const openCreate = () => {
     setEditingRecord(null)
@@ -374,6 +383,34 @@ export function CrudPage({
       mutate()
     } catch (error) {
       toast.error(error instanceof Error ? error.message : `Failed to delete ${recordName}`)
+    }
+  }
+
+  const toggleRecordSelection = (id: string, checked: boolean) => {
+    setSelectedIds((current) => checked ? Array.from(new Set([...current, id])) : current.filter((item) => item !== id))
+  }
+
+  const toggleAllVisible = (checked: boolean) => {
+    setSelectedIds(checked ? visibleRecordIds : [])
+  }
+
+  const handleBulkDelete = async () => {
+    setBulkDeleting(true)
+    try {
+      const response = await apiRequest<{ message: string; deletedCount: number }>("/api/v1/bulk-delete", {
+        method: "POST",
+        body: {
+          resource: bulkDeleteResource,
+          ids: selectedIds,
+        },
+      })
+      toast.success(response.message)
+      setSelectedIds([])
+      mutate()
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : `Failed to delete selected ${title.toLowerCase()}`)
+    } finally {
+      setBulkDeleting(false)
     }
   }
 
@@ -490,7 +527,33 @@ export function CrudPage({
             />
           </div>
         </div>
-        <p className="text-sm text-muted-foreground">{pagination?.total ?? 0} records</p>
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          {selectedIds.length > 0 ? (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button type="button" variant="destructive" size="sm" className="gap-2" disabled={bulkDeleting}>
+                  {bulkDeleting ? <Spinner /> : <Trash2 className="h-3.5 w-3.5" />}
+                  Delete Selected ({selectedIds.length})
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete selected records</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will permanently remove {selectedIds.length} selected {selectedIds.length === 1 ? recordName : title.toLowerCase()} record{selectedIds.length === 1 ? "" : "s"}.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction className="bg-destructive text-white hover:bg-destructive/90" onClick={handleBulkDelete}>
+                    Delete Selected
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          ) : null}
+          <p className="text-sm text-muted-foreground">{pagination?.total ?? 0} records</p>
+        </div>
       </AccessToolbar>
 
       <AccessCard title={`${title} Directory`} description={`Manage ${title.toLowerCase()} records.`}>
@@ -498,6 +561,16 @@ export function CrudPage({
           <table className="min-w-full text-sm">
             <thead className="bg-muted/45 text-left text-xs uppercase tracking-[0.18em] text-muted-foreground">
               <tr>
+                <th className="w-12 px-4 py-3">
+                  <input
+                    type="checkbox"
+                    aria-label={`Select all ${title.toLowerCase()} on this page`}
+                    checked={allVisibleSelected}
+                    disabled={records.length === 0}
+                    onChange={(event) => toggleAllVisible(event.target.checked)}
+                    className="h-4 w-4 rounded border-border"
+                  />
+                </th>
                 {columns.map((column) => (
                   <th key={column.key} className="px-4 py-3">{column.label}</th>
                 ))}
@@ -507,6 +580,15 @@ export function CrudPage({
             <tbody>
               {records.map((record) => (
                 <tr key={String(record.id)} className="border-t border-border/70">
+                  <td className="px-4 py-3 align-top">
+                    <input
+                      type="checkbox"
+                      aria-label={`Select ${recordName} ${String(getValue(record, columns[0]?.key || "id") ?? record.id)}`}
+                      checked={selectedIds.includes(String(record.id))}
+                      onChange={(event) => toggleRecordSelection(String(record.id), event.target.checked)}
+                      className="h-4 w-4 rounded border-border"
+                    />
+                  </td>
                   {columns.map((column) => (
                     <td key={column.key} className="px-4 py-3 align-top">
                       {column.render ? column.render(record) : formatCell(getValue(record, column.key))}
@@ -553,7 +635,7 @@ export function CrudPage({
               <TableEmpty title={`No ${title.toLowerCase()} found`} description="Create a record or adjust your filters." />
             </div>
           ) : null}
-          {isLoading ? <TableSkeleton columns={columns.length + 1} rows={5} /> : null}
+          {isLoading ? <TableSkeleton columns={columns.length + 2} rows={5} /> : null}
           {pagination ? (
             <PaginationControls
               page={pagination.page}

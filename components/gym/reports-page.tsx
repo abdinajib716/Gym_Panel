@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { Download } from "lucide-react"
+import { toast } from "sonner"
 
 import {
   AccessCard,
@@ -39,35 +40,45 @@ function nested(record: RecordValue, key: string) {
 function columnsFor(report: string) {
   if (report === "members") {
     return [
-      { key: "fullName", label: "Member" },
-      { key: "phoneNumber", label: "Phone" },
+      { key: "fullName", label: "Member Name" },
+      { key: "phoneNumber", label: "Phone Number" },
+      { key: "email", label: "Email" },
+      { key: "trainer.fullName", label: "Assigned Trainer" },
       { key: "status", label: "Status", render: (row: RecordValue) => <StatusPill value={String(row.status)} /> },
-      { key: "createdAt", label: "Created", render: (row: RecordValue) => shortDate(row.createdAt) },
+      { key: "createdAt", label: "Created Date", render: (row: RecordValue) => shortDate(row.createdAt) },
     ]
   }
 
   if (report === "subscriptions") {
     return [
-      { key: "member.fullName", label: "Member" },
-      { key: "plan.name", label: "Plan" },
-      { key: "status", label: "Status", render: (row: RecordValue) => <StatusPill value={String(row.status)} /> },
-      { key: "expiryDate", label: "Expiry", render: (row: RecordValue) => shortDate(row.expiryDate) },
+      { key: "member.fullName", label: "Member Name" },
+      { key: "plan.name", label: "Plan Name" },
+      { key: "plan.type", label: "Plan Type", render: (row: RecordValue) => <StatusPill value={String(nested(row, "plan.type"))} /> },
+      { key: "startDate", label: "Start Date", render: (row: RecordValue) => shortDate(row.startDate) },
+      { key: "expiryDate", label: "Expiry Date", render: (row: RecordValue) => shortDate(row.expiryDate) },
+      { key: "status", label: "Subscription Status", render: (row: RecordValue) => <StatusPill value={String(row.status)} /> },
+      { key: "paymentStatus", label: "Payment Status", render: (row: RecordValue) => <StatusPill value={String(row.paymentStatus)} /> },
     ]
   }
 
   if (report === "payments" || report === "revenue") {
     return [
-      { key: "member.fullName", label: "Member" },
+      { key: "member.fullName", label: "Member Name" },
+      { key: "plan.name", label: "Plan Name" },
       { key: "amount", label: "Amount", render: (row: RecordValue) => currency(row.amount) },
-      { key: "status", label: "Status", render: (row: RecordValue) => <StatusPill value={String(row.status)} /> },
-      { key: "paymentDate", label: "Date", render: (row: RecordValue) => shortDate(row.paymentDate) },
+      { key: "currency", label: "Currency" },
+      { key: "method", label: "Payment Method", render: (row: RecordValue) => <StatusPill value={String(row.method)} /> },
+      { key: "status", label: "Payment Status", render: (row: RecordValue) => <StatusPill value={String(row.status)} /> },
+      { key: "paymentDate", label: "Payment Date", render: (row: RecordValue) => shortDate(row.paymentDate) },
+      { key: "reference", label: "Reference" },
     ]
   }
 
   return [
-    { key: "member.fullName", label: "Member" },
-    { key: "checkInDate", label: "Check-in", render: (row: RecordValue) => shortDate(row.checkInDate) },
-    { key: "status", label: "Status", render: (row: RecordValue) => <StatusPill value={String(row.status)} /> },
+    { key: "member.fullName", label: "Member Name" },
+    { key: "checkInDate", label: "Check-in Date", render: (row: RecordValue) => shortDate(row.checkInDate) },
+    { key: "method", label: "Method", render: (row: RecordValue) => <StatusPill value={String(row.method)} /> },
+    { key: "status", label: "Attendance Status", render: (row: RecordValue) => <StatusPill value={String(row.status)} /> },
   ]
 }
 
@@ -79,11 +90,44 @@ export function ReportsPage() {
   const [status, setStatus] = useState("")
   const [dateFrom, setDateFrom] = useState("")
   const [dateTo, setDateTo] = useState("")
+  const [exporting, setExporting] = useState<"csv" | "pdf" | null>(null)
 
   const { data, isLoading } = useReport(report, { page, limit, search, status, dateFrom, dateTo })
   const rows = (data?.rows as RecordValue[] | undefined) ?? []
   const pagination = data?.pagination as { page: number; pages: number; total: number } | undefined
   const columns = columnsFor(report)
+
+  const exportReport = async (format: "csv" | "pdf") => {
+    setExporting(format)
+    try {
+      const params = new URLSearchParams()
+      params.set("format", format)
+      params.set("search", search)
+      params.set("status", status)
+      params.set("dateFrom", dateFrom)
+      params.set("dateTo", dateTo)
+      const response = await fetch(`/api/v1/reports/${report}/export?${params.toString()}`)
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ error: "Failed to export report" }))
+        throw new Error(error.error || "Failed to export report")
+      }
+
+      const blob = await response.blob()
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement("a")
+      link.href = url
+      link.download = `${report}-${new Date().toISOString().slice(0, 10)}.${format}`
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      URL.revokeObjectURL(url)
+      toast.success(`${format.toUpperCase()} report exported`)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to export report")
+    } finally {
+      setExporting(null)
+    }
+  }
 
   return (
     <div className="space-y-5">
@@ -92,10 +136,16 @@ export function ReportsPage() {
         title="Reports"
         description="Filter gym performance data across members, subscriptions, payments, attendance, and revenue."
         action={
-          <Button variant="outline" className="gap-2" disabled>
-            <Download className="h-4 w-4" />
-            Export later
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" className="gap-2" onClick={() => exportReport("csv")} disabled={Boolean(exporting)}>
+              <Download className="h-4 w-4" />
+              {exporting === "csv" ? "Exporting..." : "CSV"}
+            </Button>
+            <Button variant="outline" className="gap-2" onClick={() => exportReport("pdf")} disabled={Boolean(exporting)}>
+              <Download className="h-4 w-4" />
+              {exporting === "pdf" ? "Exporting..." : "PDF"}
+            </Button>
+          </div>
         }
       />
 
@@ -138,7 +188,7 @@ export function ReportsPage() {
         )}
       </AccessToolbar>
 
-      <AccessCard title={reportOptions.find((item) => item.value === report)?.label ?? "Report"} description="Results are protected by reports.view. Export will be added later behind reports.export.">
+      <AccessCard title={reportOptions.find((item) => item.value === report)?.label ?? "Report"} description="Results are protected by reports.view. CSV and PDF exports use reports.export.">
         <TableShell>
           <table className="min-w-full text-sm">
             <thead className="bg-muted/45 text-left text-xs uppercase tracking-[0.18em] text-muted-foreground">

@@ -562,3 +562,18 @@ Last updated: 2026-06-12
 - [x] Mobile notification/device-token smoke test passed.
 - [x] `npm run db:push`.
 - [x] `npm run build`.
+
+## Latest CRUD Bulk Delete and Report Export
+
+- [x] Added shared bulk delete API for gym CRUD modules.
+- [x] Added table row selection and select-all controls to shared gym CRUD pages.
+- [x] Added Delete Selected confirmation flow.
+- [x] Bulk delete uses existing module delete permissions.
+- [x] Added CSV report export with human column labels.
+- [x] Added PDF report export with human column labels.
+- [x] Reports page now exposes CSV and PDF export buttons.
+- [x] Report table labels now match export labels.
+- [x] Smoke-tested CSV export header labels.
+- [x] Smoke-tested PDF export content type and `%PDF-` signature.
+- [x] Smoke-tested bulk delete with a disposable notification record.
+- [x] `npm run build`.
