@@ -4,6 +4,7 @@ import { createActivityLog } from "@/lib/access-control"
 import { requirePermission } from "@/lib/auth"
 import { emptyToNull, paginationMeta } from "@/lib/gym-api"
 import { withErrorHandling } from "@/lib/error-handler"
+import { sendPushForNotification } from "@/lib/firebase-push"
 import { prisma } from "@/lib/prisma"
 import { gymPaginationQuerySchema, notificationSchema } from "@/lib/validations/gym"
 
@@ -67,6 +68,22 @@ export async function POST(request: NextRequest) {
       include: { member: true },
     })
 
+    let pushStatus: unknown = null
+    try {
+      pushStatus = await sendPushForNotification({
+        notificationId: notification.id,
+        title: notification.title,
+        message: notification.message,
+        memberId: notification.memberId,
+        roleTarget: notification.target === "ALL_MEMBERS" ? "MEMBER" : notification.target === "ALL_TRAINERS" ? "TRAINER" : null,
+      })
+    } catch (error) {
+      pushStatus = {
+        ok: false,
+        message: error instanceof Error ? error.message : "Failed to send Firebase push notification",
+      }
+    }
+
     await createActivityLog({
       type: "notifications",
       activity: "Sent notification",
@@ -74,8 +91,9 @@ export async function POST(request: NextRequest) {
       subjectId: notification.id,
       userId: session.user.id,
       userDisplay: session.user.name || session.user.email || "System Admin",
+      metadata: { pushStatus },
     })
 
-    return { notification, message: "Notification sent successfully" }
+    return { notification, pushStatus, message: "Notification sent successfully" }
   }, { path: "/api/v1/notifications", method: "POST" })
 }

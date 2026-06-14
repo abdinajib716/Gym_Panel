@@ -72,6 +72,7 @@ const notificationTypeOptions = [
 
 const notificationTargetOptions = [
   { label: "All members", value: "ALL_MEMBERS" },
+  { label: "All trainers", value: "ALL_TRAINERS" },
   { label: "Single member", value: "SINGLE_MEMBER" },
 ]
 

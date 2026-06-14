@@ -461,24 +461,26 @@ Last updated: 2026-06-12
 
 ## Module 15: Member Mobile API
 
-- [ ] Route: `GET /api/mobile/member/dashboard`.
-- [ ] Route: `GET /api/mobile/member/subscription/current`.
-- [ ] Route: `GET /api/mobile/member/subscription/history`.
-- [ ] Route: `GET /api/mobile/member/plans`.
-- [ ] Route: `POST /api/mobile/member/subscription/upgrade`.
-- [ ] Route: `POST /api/mobile/member/subscription/renew`.
-- [ ] Route: `POST /api/mobile/member/payments/waafi/initiate`.
-- [ ] Route: `GET /api/mobile/member/payments/waafi/status/:paymentId`.
-- [ ] Route: `GET /api/mobile/member/payments/history`.
-- [ ] Route: `GET /api/mobile/member/notifications`.
-- [ ] Route: `PATCH /api/mobile/member/notifications/:notificationId/read`.
-- [ ] Member can only access own dashboard, subscription, payments, and notifications.
-- [ ] Member cannot register from mobile app.
-- [ ] Upgrade/renew creates pending subscription until payment succeeds.
-- [ ] Waafi payment uses existing server-side Waafi service and stores full transaction response.
-- [ ] Successful payment activates subscription and notifies member.
-- [ ] Failed payment stores Waafi failure reason and notifies member.
-- [ ] Module complete.
+- [x] Route: `GET /api/mobile/member/dashboard`.
+- [x] Route: `GET /api/mobile/member/subscription/current`.
+- [x] Route: `GET /api/mobile/member/subscription/history`.
+- [x] Route: `GET /api/mobile/member/plans`.
+- [x] Route: `POST /api/mobile/member/subscription/upgrade`.
+- [x] Route: `POST /api/mobile/member/subscription/renew`.
+- [x] Route: `POST /api/mobile/member/payments/waafi/initiate`.
+- [x] Route: `GET /api/mobile/member/payments/waafi/status/:paymentId`.
+- [x] Route: `GET /api/mobile/member/payments/history`.
+- [x] Route: `GET /api/mobile/member/notifications`.
+- [x] Route: `PATCH /api/mobile/member/notifications/:notificationId/read`.
+- [x] Member can only access own dashboard, subscription, payments, and notifications.
+- [x] Member cannot register from mobile app.
+- [x] Upgrade/renew creates pending subscription until payment succeeds.
+- [x] Waafi payment uses existing server-side Waafi service and stores full transaction response.
+- [x] Successful payment activates subscription and notifies member.
+- [x] Failed payment stores Waafi failure reason and notifies member.
+- [x] Created `MOBILE_MEMBER_API_CONTRACT.md`.
+- [x] Captured exact member API smoke responses in `MOBILE_MEMBER_API_SMOKE_RESPONSES.md`.
+- [x] Module complete.
 
 ## Module 16: Trainer Mobile API
 
@@ -512,11 +514,51 @@ Last updated: 2026-06-12
 - [x] `npm run build`.
 - [x] `npm run db:push` if Prisma schema changes are added.
 - [ ] Mobile auth login works for trainer.
-- [ ] Mobile auth login works for member.
-- [ ] Mobile `/me` returns only safe profile data.
+- [x] Mobile auth login works for member.
+- [x] Mobile `/me` returns only safe profile data.
 - [~] E2E mobile login smoke was attempted, but the remote Neon database connection was unreachable during record creation.
 - [ ] Trainer cannot access unassigned member.
 - [ ] Trainer cannot access admin-only data.
 - [ ] Member cannot access another member's data.
 - [ ] Member Waafi payment stores request id, invoice id, transaction id, order id, response message, status, and raw response.
 - [ ] Existing admin panel routes still work after mobile API changes.
+
+## Latest Auth Fix Verification
+
+- [x] Sign-in no longer runs Access Control seed before loading an existing user.
+- [x] Session refresh keeps the existing JWT if the database is temporarily unavailable.
+- [x] API error handler returns a clean database-unavailable message instead of raw Prisma/Turbopack stack output.
+- [x] Forgot Password API returned the generic reset-code response successfully.
+- [x] Credentials sign-in callback returned the dashboard URL successfully.
+- [x] `npm run build`.
+
+## Latest Member Detail UX Fix
+
+- [x] Member View Details no longer shows raw database IDs for subscriptions, payments, and attendance.
+- [x] Related records now use human labels such as Plan, Period, Amount, Payment Status, and Check-in Date.
+- [x] Empty related sections show a plain no-records message.
+- [x] `npm run build`.
+
+## Latest Permission and Member Mobile API Fix
+
+- [x] Super Admin now bypasses stale permission lists in `requirePermission`.
+- [x] Show Password and Resend Welcome Email are no longer blocked for Super Admin by missing credential permissions.
+- [x] Member mobile API endpoints implemented.
+- [x] Member mobile API endpoints smoke-tested with a real mobile token.
+- [x] Waafi initiate validation returns a clean client error without creating an admin activity-log foreign-key error.
+
+## Latest Firebase Push Notification Integration
+
+- [x] Checked current Firebase documentation for server-side FCM sending.
+- [x] Installed Firebase Admin SDK.
+- [x] Added `MobileDeviceToken` storage for member/trainer FCM tokens.
+- [x] Added mobile device token registration/removal endpoint.
+- [x] Added Firebase Config test button in Settings.
+- [x] Added Firebase dry-run test endpoint.
+- [x] Added role push support for `members` and `trainers` topics.
+- [x] Admin notifications now attempt Firebase push after the notification is saved.
+- [x] Added `ALL_TRAINERS` notification target.
+- [x] Member notification APIs support list, mark one read, mark all read, and delete.
+- [x] Mobile notification/device-token smoke test passed.
+- [x] `npm run db:push`.
+- [x] `npm run build`.

@@ -165,6 +165,10 @@ export async function requireAuth() {
 export async function requirePermission(permission: string) {
   const session = await requireAuth()
 
+  if (session.user.role === "SUPER_ADMIN" || session.user.roles?.includes("Super Admin")) {
+    return session
+  }
+
   if (!hasPermission(session.user.permissions, permission)) {
     throw new AppError(403, "You do not have permission to perform this action")
   }

@@ -85,6 +85,14 @@ type WaafiTestResponse = {
   rawResponse?: string
 }
 
+type FirebaseTestResponse = {
+  success: boolean
+  message: string
+  dryRun: boolean
+  target: string
+  messageId: string
+}
+
 function getWaafiToastMessage(response: WaafiTestResponse) {
   if (response.message) return response.message
   const waafiResponse = response.waafiResponse
@@ -130,11 +138,13 @@ export function AccessControlSettingsPage() {
   const [activeTab, setActiveTab] = useState("general")
   const [isSaving, setIsSaving] = useState(false)
   const [isTesting, setIsTesting] = useState(false)
+  const [isTestingFirebase, setIsTestingFirebase] = useState(false)
   const [isSavingWaafi, setIsSavingWaafi] = useState(false)
   const [waafiValues, setWaafiValues] = useState(waafiDefaults)
   const [waafiTestPhone, setWaafiTestPhone] = useState("")
   const [waafiTestAmount, setWaafiTestAmount] = useState("0.01")
   const [waafiTestResult, setWaafiTestResult] = useState<WaafiTestResponse | null>(null)
+  const [firebaseTestResult, setFirebaseTestResult] = useState<FirebaseTestResponse | null>(null)
   const settingsResetKeyRef = useRef<string | null>(null)
 
   const form = useForm<SettingsFormValues>({
@@ -209,6 +219,22 @@ export function AccessControlSettingsPage() {
       toast.error(error instanceof Error ? error.message : "Failed to send test email")
     } finally {
       setIsTesting(false)
+    }
+  }
+
+  const handleTestFirebase = async () => {
+    setIsTestingFirebase(true)
+    try {
+      const response = await apiRequest<FirebaseTestResponse>("/api/v1/access-control/settings/test-firebase", {
+        method: "POST",
+      })
+      setFirebaseTestResult(response)
+      toast.success(response.message)
+    } catch (error) {
+      setFirebaseTestResult(null)
+      toast.error(error instanceof Error ? error.message : "Failed to test Firebase connection")
+    } finally {
+      setIsTestingFirebase(false)
     }
   }
 
@@ -543,7 +569,16 @@ export function AccessControlSettingsPage() {
           </TabsContent>
 
           <TabsContent value="firebase" className="space-y-5">
-            <AccessCard title="Firebase Config" description="Notification credentials for later push notification delivery.">
+            <AccessCard
+              title="Firebase Config"
+              description="Configure Firebase Cloud Messaging for member and trainer push notifications."
+              action={
+                <Button type="button" variant="outline" className="gap-2" onClick={handleTestFirebase} disabled={isTestingFirebase}>
+                  {isTestingFirebase ? <Spinner /> : <Send className="h-4 w-4" />}
+                  {isTestingFirebase ? "Testing..." : "Test Firebase"}
+                </Button>
+              }
+            >
               <div className="grid gap-4 md:grid-cols-2">
                 <FieldBlock label="Enable Firebase">
                   <Controller
@@ -580,6 +615,25 @@ export function AccessControlSettingsPage() {
                   </FieldBlock>
                 </div>
               </div>
+              {firebaseTestResult ? (
+                <div className="mt-5 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
+                  <p className="font-semibold">{firebaseTestResult.message}</p>
+                  <div className="mt-3 grid gap-3 md:grid-cols-3">
+                    <div>
+                      <p className="text-emerald-700">Mode</p>
+                      <p className="font-medium">{firebaseTestResult.dryRun ? "Dry run validation" : "Live send"}</p>
+                    </div>
+                    <div>
+                      <p className="text-emerald-700">Target</p>
+                      <p className="break-all font-medium">{firebaseTestResult.target}</p>
+                    </div>
+                    <div>
+                      <p className="text-emerald-700">Message ID</p>
+                      <p className="break-all font-medium">{firebaseTestResult.messageId}</p>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
             </AccessCard>
           </TabsContent>
 

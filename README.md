@@ -27,6 +27,7 @@ The system keeps the existing admin foundation intact: authentication, dashboard
 - Superadmin bootstrap through environment variables.
 - Admin shell with existing layout, sidebar, header, and access-control navigation.
 - Settings-driven branding, appearance, email configuration, Firebase config, and WaafiPay config.
+- Firebase Cloud Messaging push support through Firebase Admin SDK.
 - Local image uploads for branding assets and user/member images.
 - Activity logs for important admin and gym actions.
 - Loading, empty, validation, and toast states across admin workflows.
@@ -45,6 +46,7 @@ The system keeps the existing admin foundation intact: authentication, dashboard
 - WaafiPay online payment initiation and status endpoint.
 - Attendance manual check-in, history, filters, and reporting.
 - Notifications for announcements, payment reminders, subscription expiry, upgrade confirmations, and general messages.
+- Mobile device token registration for member/trainer push notifications.
 - Reports for members, subscriptions, payments, attendance, and revenue.
 
 ## Access Control
@@ -77,6 +79,7 @@ The settings module includes:
 - Site Appearance: theme mode, primary color, sidebar style, layout width, and header style.
 - Email Configuration: mail driver, sender identity, SMTP host, port, username, password, and encryption.
 - Firebase Config: enable flag, project ID, client email, private key, and server key.
+- Firebase Test Connection: validates Firebase Admin SDK credentials with an FCM dry-run send.
 - Waafi Config: enable flag, test/live mode, API base URL, merchant UID, API user ID, hidden API key, and merchant number.
 - Waafi Test Connection: phone number with `252` prefix, user-entered amount, server-side Waafi request, up to 90 seconds of wait time for the customer phone response, and raw Waafi response display.
 
@@ -103,6 +106,15 @@ Dedicated mobile auth routes are separate from the admin NextAuth flow:
 - `POST /api/mobile/auth/reset-password`
 
 Mobile auth supports member and trainer accounts created by the admin panel. It returns a mobile token, role, and safe profile payload, and it accepts phone login identifiers in common local/international formats such as `061...`, `61...`, and `25261...`.
+
+## Push Notifications
+
+- Mobile apps register FCM tokens through `POST /api/mobile/device-tokens` after login.
+- Member devices subscribe to the `members` topic.
+- Trainer devices subscribe to the `trainers` topic.
+- Admin-created notifications attempt Firebase push after the notification record is saved.
+- Settings includes a Firebase dry-run test button to validate service-account credentials before sending live pushes.
+- Member notification APIs support list, mark one read, mark all read, and delete.
 
 ## WaafiPay Flow
 

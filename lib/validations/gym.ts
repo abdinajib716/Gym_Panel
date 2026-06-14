@@ -109,7 +109,7 @@ export const notificationSchema = z.object({
   title: z.string().trim().min(1, "Title is required"),
   message: z.string().trim().min(1, "Message is required"),
   type: z.enum(["PAYMENT_REMINDER", "SUBSCRIPTION_EXPIRY", "GYM_ANNOUNCEMENT", "UPGRADE_CONFIRMATION", "GENERAL_MESSAGE"]),
-  target: z.enum(["ALL_MEMBERS", "SINGLE_MEMBER"]).default("ALL_MEMBERS"),
+  target: z.enum(["ALL_MEMBERS", "ALL_TRAINERS", "SINGLE_MEMBER"]).default("ALL_MEMBERS"),
   memberId: optionalText,
   readStatus: z.enum(["UNREAD", "READ"]).default("UNREAD"),
 })

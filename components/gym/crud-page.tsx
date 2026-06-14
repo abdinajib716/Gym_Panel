@@ -115,6 +115,81 @@ function formatCell(value: unknown) {
   return String(value).replaceAll("_", " ")
 }
 
+function humanLabel(value: string) {
+  return value
+    .replace(/Id$/i, "")
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replaceAll("_", " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase())
+}
+
+function relationTitle(key: string, count: number) {
+  const titles: Record<string, string> = {
+    subscriptions: "Memberships",
+    payments: "Payments",
+    attendance: "Attendance",
+    notifications: "Notifications",
+  }
+  const singularTitles: Record<string, string> = {
+    subscriptions: "Membership",
+    payments: "Payment",
+    attendance: "Attendance Record",
+    notifications: "Notification",
+  }
+  const title = titles[key] || humanLabel(key)
+  return count === 1 ? `1 ${singularTitles[key] || title}` : `${count} ${title}`
+}
+
+function readablePairs(key: string, entry: RecordValue): Array<{ label: string; value: unknown }> {
+  if (key === "subscriptions") {
+    return [
+      { label: "Plan", value: getValue(entry, "plan.name") },
+      { label: "Period", value: `${shortDate(entry.startDate)} to ${shortDate(entry.expiryDate)}` },
+      { label: "Membership Status", value: entry.status },
+      { label: "Payment Status", value: entry.paymentStatus },
+      { label: "Plan Price", value: getValue(entry, "plan.price") ? currency(getValue(entry, "plan.price")) : undefined },
+    ]
+  }
+
+  if (key === "payments") {
+    return [
+      { label: "Amount", value: currency(entry.amount) },
+      { label: "Payment Status", value: entry.status },
+      { label: "Payment Method", value: entry.method },
+      { label: "Payment Date", value: shortDate(entry.paymentDate) },
+      { label: "Plan", value: getValue(entry, "plan.name") ?? getValue(entry, "subscription.plan.name") },
+      { label: "Reference", value: entry.reference ?? entry.transactionId ?? entry.orderId ?? entry.requestId },
+      { label: "Waafi Message", value: entry.responseMessage ?? entry.failedReason },
+    ]
+  }
+
+  if (key === "attendance") {
+    return [
+      { label: "Check-in Date", value: shortDate(entry.checkInDate) },
+      { label: "Status", value: entry.status },
+      { label: "Recorded By", value: entry.method },
+    ]
+  }
+
+  if (key === "notifications") {
+    return [
+      { label: "Title", value: entry.title },
+      { label: "Message", value: entry.message },
+      { label: "Type", value: entry.type },
+      { label: "Read Status", value: entry.readStatus },
+      { label: "Sent", value: shortDate(entry.createdAt) },
+    ]
+  }
+
+  return Object.entries(entry)
+    .filter(([entryKey, entryValue]) => {
+      if (entryKey === "id" || entryKey.endsWith("Id")) return false
+      return ["string", "number", "boolean"].includes(typeof entryValue)
+    })
+    .slice(0, 5)
+    .map(([entryKey, entryValue]) => ({ label: humanLabel(entryKey), value: entryValue }))
+}
+
 function optionLabel(item: unknown, field: Field) {
   if (!item || typeof item !== "object") return ""
   const record = item as RecordValue
@@ -576,21 +651,26 @@ export function CrudPage({
                   .filter(([, value]) => Array.isArray(value))
                   .map(([key, value]) => (
                     <div key={key} className="rounded-xl border border-border/70 bg-card px-4 py-3">
-                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">{key.replaceAll("_", " ")}</p>
-                      <p className="mt-2 text-sm font-medium">{(value as unknown[]).length} related records</p>
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">{humanLabel(key)}</p>
+                      <p className="mt-2 text-sm font-medium">{relationTitle(key, (value as unknown[]).length)}</p>
                       <div className="mt-3 space-y-2">
                         {(value as RecordValue[]).slice(0, 5).map((entry, index) => (
-                          <div key={String(entry.id ?? index)} className="rounded-lg border border-border/60 bg-muted/25 px-3 py-2 text-xs text-muted-foreground">
-                            {Object.entries(entry)
-                              .filter(([, entryValue]) => ["string", "number", "boolean"].includes(typeof entryValue))
-                              .slice(0, 4)
-                              .map(([entryKey, entryValue]) => (
-                                <span key={entryKey} className="mr-3">
-                                  <span className="font-medium text-foreground">{entryKey}:</span> {formatCell(entryValue)}
-                                </span>
-                              ))}
+                          <div key={String(entry.id ?? index)} className="rounded-lg border border-border/60 bg-muted/25 px-3 py-3 text-sm">
+                            <div className="grid gap-2 sm:grid-cols-2">
+                              {readablePairs(key, entry)
+                                .filter((item) => item.value !== null && item.value !== undefined && item.value !== "")
+                                .map((item) => (
+                                  <div key={item.label}>
+                                    <p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">{item.label}</p>
+                                    <p className="mt-1 font-medium text-foreground">{formatCell(item.value)}</p>
+                                  </div>
+                                ))}
+                            </div>
                           </div>
                         ))}
+                        {(value as unknown[]).length === 0 ? (
+                          <p className="rounded-lg border border-dashed border-border/70 px-3 py-3 text-sm text-muted-foreground">No records yet.</p>
+                        ) : null}
                       </div>
                     </div>
                   ))
