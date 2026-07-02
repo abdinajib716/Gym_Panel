@@ -57,6 +57,45 @@ export const trainerSchema = z.object({
 
 export const trainerUpdateSchema = trainerSchema.partial()
 
+const optionalId = z.string().trim().optional().nullable().or(z.literal(""))
+
+export const workoutSchema = z.object({
+  title: z.string().trim().min(1, "Workout title is required"),
+  description: optionalText,
+  image: optionalText,
+  sets: z.coerce.number().int().positive().optional().nullable(),
+  reps: z.coerce.number().int().positive().optional().nullable(),
+  durationMinutes: z.coerce.number().int().positive().optional().nullable(),
+  duration_minutes: z.coerce.number().int().positive().optional().nullable(),
+  difficulty: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCED"]).default("BEGINNER"),
+  category: optionalText,
+  status: z.enum(["ACTIVE", "INACTIVE"]).default("ACTIVE"),
+  memberId: optionalId,
+  member_id: optionalId,
+  groupId: optionalId,
+  group_id: optionalId,
+})
+
+export const workoutUpdateSchema = workoutSchema.partial()
+
+export const trainerScheduleSchema = z.object({
+  memberId: optionalId,
+  member_id: optionalId,
+  groupId: optionalId,
+  group_id: optionalId,
+  workoutId: z.string().trim().optional(),
+  workout_id: z.string().trim().optional(),
+  date: z.string().trim().min(1, "Date is required"),
+  startTime: z.string().trim().optional(),
+  start_time: z.string().trim().optional(),
+  endTime: z.string().trim().optional(),
+  end_time: z.string().trim().optional(),
+  notes: optionalText,
+  status: z.enum(["UPCOMING", "COMPLETED", "MISSED", "CANCELLED"]).default("UPCOMING"),
+})
+
+export const trainerScheduleUpdateSchema = trainerScheduleSchema.partial()
+
 export const membershipPlanSchema = z.object({
   name: z.string().trim().min(1, "Plan name is required"),
   type: z.enum(["MONTHLY", "QUARTERLY", "ANNUAL", "GROUP_TRAINING", "PERSONAL_TRAINING"]),

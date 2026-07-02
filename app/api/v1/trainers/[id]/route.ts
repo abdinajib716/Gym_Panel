@@ -15,7 +15,21 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 
     const trainer = await prisma.trainer.findUnique({
       where: { id },
-      include: { members: { orderBy: { fullName: "asc" } }, mobileAccount: true },
+      include: {
+        members: {
+          orderBy: { fullName: "asc" },
+          include: {
+            subscriptions: { orderBy: { createdAt: "desc" }, take: 1, include: { plan: true } },
+            attendance: { orderBy: { checkInDate: "desc" }, take: 30 },
+            workouts: { orderBy: { createdAt: "desc" }, take: 1 },
+            trainerSchedules: { where: { date: { gte: new Date() } }, orderBy: { date: "asc" }, take: 1 },
+          },
+        },
+        groups: { include: { _count: { select: { members: true } } }, orderBy: { name: "asc" } },
+        workouts: { include: { member: true, group: true }, orderBy: { createdAt: "desc" } },
+        schedules: { include: { member: true, group: true, workout: true }, orderBy: { date: "desc" } },
+        mobileAccount: true,
+      },
     })
 
     if (!trainer) {
@@ -54,6 +68,17 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         ...(payload.status !== undefined ? { status: payload.status } : {}),
       },
     })
+
+    if (existingTrainer && (payload.status !== undefined || payload.email !== undefined || payload.phoneNumber !== undefined)) {
+      await prisma.mobileAccount.updateMany({
+        where: { trainerId: id },
+        data: {
+          ...(payload.status !== undefined ? { accountStatus: payload.status === "ACTIVE" ? "ACTIVE" : "INACTIVE" } : {}),
+          ...(payload.email !== undefined ? { loginEmail: emptyToNull(payload.email) } : {}),
+          ...(payload.phoneNumber !== undefined ? { loginPhone: payload.phoneNumber } : {}),
+        },
+      })
+    }
 
     await createActivityLog({
       type: "trainers",

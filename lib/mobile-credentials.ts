@@ -313,3 +313,21 @@ export async function getTrainerLoginDetails(trainerId: string, actor?: Actor) {
     temporaryPassword: decryptTemporaryPassword(trainer.mobileAccount.temporaryPasswordEncrypted),
   }
 }
+
+export async function resetTrainerTemporaryPassword(trainerId: string, actor?: Actor) {
+  const trainer = await prisma.trainer.findUnique({ where: { id: trainerId }, include: { mobileAccount: true } })
+  if (!trainer?.mobileAccount) throw new AppError(404, "Trainer login account not found")
+  const temporaryPassword = generateTemporaryPassword()
+  await prisma.mobileAccount.update({
+    where: { id: trainer.mobileAccount.id },
+    data: {
+      passwordHash: await bcrypt.hash(temporaryPassword, 10),
+      temporaryPasswordEncrypted: encryptTemporaryPassword(temporaryPassword),
+      mustChangePassword: true,
+      passwordChangedAt: null,
+    },
+  })
+  await createActivityLog({ type: "trainer_credentials", activity: "Reset trainer temporary password", subject: trainer.fullName, subjectId: trainer.id, userId: actor?.id, userDisplay: userDisplay(actor) })
+  const emailStatus = await sendTrainerWelcomeEmail(trainer.id, actor, temporaryPassword)
+  return { temporaryPassword, emailStatus }
+}

@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { Copy, Eye, EyeOff, Mail, Pencil, Plus, Trash2 } from "lucide-react"
+import { Copy, Eye, EyeOff, KeyRound, Mail, Pencil, Plus, ShieldCheck, ShieldX, Trash2 } from "lucide-react"
 import useSWR from "swr"
 import { toast } from "sonner"
 
@@ -340,6 +340,36 @@ export function CrudPage({
       toast.success(response.message)
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to resend welcome email")
+    } finally {
+      setLoadingCredentials(false)
+    }
+  }
+
+  const resetTrainerPassword = async () => {
+    if (!viewRecord?.id || recordName !== "trainer") return
+    setLoadingCredentials(true)
+    try {
+      const response = await apiRequest<{ message: string; temporaryPassword: string }>(`${endpoint}/${viewRecord.id}/reset-password`, { method: "POST" })
+      setTemporaryPassword(response.temporaryPassword)
+      setShowTemporaryPassword(true)
+      toast.success(response.message)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to reset password")
+    } finally {
+      setLoadingCredentials(false)
+    }
+  }
+
+  const setTrainerAccountStatus = async (status: "ACTIVE" | "SUSPENDED") => {
+    if (!viewRecord?.id || recordName !== "trainer") return
+    setLoadingCredentials(true)
+    try {
+      const response = await apiRequest<{ message: string }>(`${endpoint}/${viewRecord.id}/account`, { method: "PUT", body: { status } })
+      toast.success(response.message)
+      await openDetails(viewRecord)
+      mutate()
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to update login status")
     } finally {
       setLoadingCredentials(false)
     }
@@ -714,6 +744,18 @@ export function CrudPage({
                       <Mail className="h-3.5 w-3.5" />
                       Resend Email
                     </Button>
+                    {recordName === "trainer" ? (
+                      <>
+                        <Button type="button" variant="outline" size="sm" className="gap-2" onClick={resetTrainerPassword} disabled={loadingCredentials}>
+                          <KeyRound className="h-3.5 w-3.5" />
+                          Reset Password
+                        </Button>
+                        <Button type="button" variant="outline" size="sm" className="gap-2" onClick={() => setTrainerAccountStatus(loginAccount.accountStatus === "SUSPENDED" ? "ACTIVE" : "SUSPENDED")} disabled={loadingCredentials}>
+                          {loginAccount.accountStatus === "SUSPENDED" ? <ShieldCheck className="h-3.5 w-3.5" /> : <ShieldX className="h-3.5 w-3.5" />}
+                          {loginAccount.accountStatus === "SUSPENDED" ? "Unblock Login" : "Block Login"}
+                        </Button>
+                      </>
+                    ) : null}
                   </div>
                 </div>
               </div>

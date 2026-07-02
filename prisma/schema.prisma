@@ -199,6 +199,8 @@ enum NotificationType {
   GYM_ANNOUNCEMENT
   UPGRADE_CONFIRMATION
   GENERAL_MESSAGE
+  WORKOUT_ASSIGNED
+  SCHEDULE_ASSIGNED
 }
 
 enum NotificationTarget {
@@ -215,6 +217,24 @@ enum NotificationReadStatus {
 enum TrainerStatus {
   ACTIVE
   INACTIVE
+}
+
+enum WorkoutDifficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum WorkoutStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum TrainerScheduleStatus {
+  UPCOMING
+  COMPLETED
+  MISSED
+  CANCELLED
 }
 
 enum MobileAccountRole {
@@ -328,6 +348,9 @@ model Member {
   attendance       Attendance[]
   notifications    Notification[]
   mobileAccount    MobileAccount?
+  groupMemberships TrainerGroupMember[]
+  workouts         Workout[]
+  trainerSchedules TrainerSchedule[]
 
   @@index([fullName])
   @@index([phoneNumber])
@@ -348,8 +371,94 @@ model Trainer {
   updatedAt    DateTime      @updatedAt
   members      Member[]
   mobileAccount MobileAccount?
+  groups       TrainerGroup[]
+  workouts     Workout[]
+  schedules    TrainerSchedule[]
 
   @@index([fullName])
+  @@index([status])
+}
+
+model TrainerGroup {
+  id           String               @id @default(uuid())
+  name         String
+  trainingDays String?
+  trainingTime String?
+  status       TrainerStatus        @default(ACTIVE)
+  trainerId    String?
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  trainer      Trainer?             @relation(fields: [trainerId], references: [id], onDelete: SetNull)
+  members      TrainerGroupMember[]
+  workouts     Workout[]
+  schedules    TrainerSchedule[]
+
+  @@index([trainerId])
+  @@index([status])
+}
+
+model TrainerGroupMember {
+  id        String       @id @default(uuid())
+  groupId   String
+  memberId  String
+  createdAt DateTime     @default(now())
+  group     TrainerGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  member    Member       @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, memberId])
+  @@index([memberId])
+}
+
+model Workout {
+  id              String            @id @default(uuid())
+  trainerId       String
+  memberId        String?
+  groupId         String?
+  title           String
+  description     String?
+  image           String?
+  sets            Int?
+  reps            Int?
+  durationMinutes Int?
+  difficulty      WorkoutDifficulty @default(BEGINNER)
+  category        String?
+  status          WorkoutStatus     @default(ACTIVE)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  trainer         Trainer           @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  member          Member?           @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  group           TrainerGroup?     @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  schedules       TrainerSchedule[]
+
+  @@index([trainerId])
+  @@index([memberId])
+  @@index([groupId])
+  @@index([status])
+}
+
+model TrainerSchedule {
+  id        String                @id @default(uuid())
+  trainerId String
+  memberId  String?
+  groupId   String?
+  workoutId String
+  date      DateTime
+  startTime String
+  endTime   String
+  notes     String?
+  status    TrainerScheduleStatus @default(UPCOMING)
+  createdAt DateTime              @default(now())
+  updatedAt DateTime              @updatedAt
+  trainer   Trainer               @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  member    Member?               @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  group     TrainerGroup?         @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  workout   Workout               @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+
+  @@index([trainerId])
+  @@index([memberId])
+  @@index([groupId])
+  @@index([workoutId])
+  @@index([date])
   @@index([status])
 }
 

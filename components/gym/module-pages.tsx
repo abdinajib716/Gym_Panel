@@ -424,6 +424,18 @@ export function TrainersPage() {
         { key: "availability", label: "Availability" },
         { key: "status", label: "Status", render: (record) => <StatusPill value={String(record.status)} /> },
       ]}
+      detailFields={[
+        { key: "fullName", label: "Full name" },
+        { key: "phoneNumber", label: "Phone" },
+        { key: "email", label: "Email" },
+        { key: "gender", label: "Gender" },
+        { key: "specialty", label: "Specialty" },
+        { key: "availability", label: "Availability" },
+        { key: "status", label: "Profile status", render: (record) => <StatusPill value={String(record.status)} /> },
+        { key: "mobileAccount.accountStatus", label: "Login status", render: (record) => <StatusPill value={String(nested(record, "mobileAccount.accountStatus") ?? "INACTIVE")} /> },
+        { key: "mobileAccount.lastLoginAt", label: "Last login", render: (record) => shortDate(nested(record, "mobileAccount.lastLoginAt")) },
+        { key: "createdAt", label: "Created", render: (record) => shortDate(record.createdAt) },
+      ]}
     />
   )
 }

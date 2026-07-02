@@ -1,0 +1,34 @@
+services:
+  app:
+    build:
+      context: .
+    container_name: gym-panel
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      HOSTNAME: "0.0.0.0"
+      NEXT_TELEMETRY_DISABLED: "1"
+    ports:
+      - "127.0.0.1:3010:3000"
+    volumes:
+      - gym_uploads:/app/public/uploads
+
+  db-push:
+    image: node:24-alpine
+    profiles:
+      - tools
+    working_dir: /work
+    env_file:
+      - .env
+    volumes:
+      - .:/src:ro
+    command: >
+      sh -lc "cp -a /src/package.json /src/package-lock.json /src/prisma .
+      && npm ci
+      && npm run db:push"
+
+volumes:
+  gym_uploads:
