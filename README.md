@@ -1,8 +1,17 @@
-# Gym Management Admin Panel
+# Gym Management System
 
-Protected Next.js admin panel for managing a gym operation end to end: members, trainers, plans, subscriptions, payments, attendance, notifications, reports, settings, access control, and WaafiPay online payment configuration.
+Protected Next.js gym management system for managing a gym operation end to end: members, trainers, plans, subscriptions, payments, attendance, notifications, reports, settings, access control, mobile member APIs, mobile trainer APIs, push notifications, and WaafiPay online payment configuration.
 
 The system keeps the existing admin foundation intact: authentication, dashboard shell, sidebar navigation, roles, permissions, settings, and access-control flows are reused instead of rebuilt.
+
+## Documentation Map
+
+- `API_END_TO_END_OVERVIEW.md` - human-friendly end-to-end API map across admin, member mobile, trainer mobile, auth, settings, payments, and uploads.
+- `DATABASE_END_TO_END_OVERVIEW.md` - database table, enum, relationship, index, delete behavior, and sensitive data overview.
+- `MOBILE_MEMBER_API_CONTRACT.md` - member mobile endpoint contract and example payloads.
+- `MOBILE_MEMBER_API_SMOKE_RESPONSES.md` - member mobile smoke test response examples.
+- `TRAINER_MOBILE_API_TRAINING.md` - trainer management and trainer mobile workflow guide.
+- `TRAINER_MOBILE_API_TEST_REPORT.md` - trainer mobile API test report.
 
 ## Tech Stack
 
@@ -41,6 +50,9 @@ The system keeps the existing admin foundation intact: authentication, dashboard
 - Members CRUD with profile details, status, trainer assignment, subscription, and initial payment support.
 - Trainers CRUD with specialty, availability, and active/inactive status.
 - Member and trainer View Details screens include Login Details fallback, hidden temporary password reveal, copy action, and welcome email resend action.
+- Trainer account management includes password reset, mobile login block/unblock, and assigned-member management.
+- Trainer mobile workflow supports assigned members, trainer groups, workouts, schedules, attendance summaries, and workout image uploads.
+- Member mobile workflow supports dashboard, plans, subscription history, renew/upgrade requests, Waafi payments, notifications, assigned workouts, and schedules.
 - Membership plans CRUD with type, duration, price, description, and status.
 - Subscriptions CRUD with member, plan, start date, expiry date, status, and payment status.
 - Payments list and manual payment creation.
@@ -97,7 +109,7 @@ Sensitive Waafi API keys are never returned to the frontend. The UI only receive
 - Temporary passwords are stored as hashes for login and encrypted fallback values for privileged admin viewing.
 - Credential viewing and welcome-email resend are protected by dedicated Access Control permissions.
 
-## Mobile Auth Phase 2
+## Mobile APIs
 
 Dedicated mobile auth routes are separate from the admin NextAuth flow:
 
@@ -108,6 +120,26 @@ Dedicated mobile auth routes are separate from the admin NextAuth flow:
 - `POST /api/mobile/auth/reset-password`
 
 Mobile auth supports member and trainer accounts created by the admin panel. It returns a mobile token, role, and safe profile payload, and it accepts phone login identifiers in common local/international formats such as `061...`, `61...`, and `25261...`.
+
+Member mobile areas include:
+
+- Dashboard and current account summary.
+- Active plans, current subscription, subscription history, renew, and upgrade.
+- Waafi payment initiation/status and payment history.
+- Notifications list, mark read, mark all read, and delete.
+- Assigned workouts and schedules, including today's training.
+
+Trainer mobile areas include:
+
+- Trainer-only login, logout, change password, forgot/reset password.
+- Profile view/update.
+- Dashboard KPIs and today's schedule.
+- Assigned members and member attendance/workouts/schedules.
+- Trainer groups and group members/workouts/schedules.
+- Attendance summaries for today, weekly, and monthly windows.
+- Workout image upload.
+- Workout CRUD, assign-to-member, and assign-to-group.
+- Schedule CRUD, complete, and cancel.
 
 ## Push Notifications
 
@@ -134,6 +166,10 @@ Mobile auth supports member and trainer accounts created by the admin panel. It 
 
 ## API Areas
 
+For a complete method-by-method API guide, read `API_END_TO_END_OVERVIEW.md`.
+
+Admin and shared API areas:
+
 - `/api/v1/dashboard`
 - `/api/v1/members`
 - `/api/v1/members/[id]/login-details`
@@ -141,6 +177,9 @@ Mobile auth supports member and trainer accounts created by the admin panel. It 
 - `/api/v1/trainers`
 - `/api/v1/trainers/[id]/login-details`
 - `/api/v1/trainers/[id]/resend-welcome-email`
+- `/api/v1/trainers/[id]/reset-password`
+- `/api/v1/trainers/[id]/account`
+- `/api/v1/trainers/[id]/members`
 - `/api/v1/membership-plans`
 - `/api/v1/subscriptions`
 - `/api/v1/payments`
@@ -158,7 +197,27 @@ Mobile auth supports member and trainer accounts created by the admin panel. It 
 - `/api/v1/uploads/image`
 - `/api/auth/forgot-password`
 - `/api/auth/reset-password`
+
+Mobile API areas:
+
 - `/api/mobile/auth/*`
+- `/api/mobile/device-tokens`
+- `/api/mobile/member/dashboard`
+- `/api/mobile/member/plans`
+- `/api/mobile/member/subscription/*`
+- `/api/mobile/member/payments/*`
+- `/api/mobile/member/notifications/*`
+- `/api/mobile/member/workouts/*`
+- `/api/mobile/member/schedules/*`
+- `/api/mobile/trainer/auth/*`
+- `/api/mobile/trainer/dashboard`
+- `/api/mobile/trainer/profile`
+- `/api/mobile/trainer/members/*`
+- `/api/mobile/trainer/groups/*`
+- `/api/mobile/trainer/attendance/[period]`
+- `/api/mobile/trainer/uploads/image`
+- `/api/mobile/trainer/workouts/*`
+- `/api/mobile/trainer/schedules/*`
 
 ## Environment Variables
 
@@ -207,13 +266,31 @@ Start production build:
 npm run start
 ```
 
+Optional Docker run:
+
+```bash
+docker compose up --build app
+```
+
+The compose file exposes the app on `127.0.0.1:3010` and stores uploads in a named Docker volume.
+
+Optional database push through Docker:
+
+```bash
+docker compose --profile tools run --rm db-push
+```
+
 ## Data Model Summary
+
+For a detailed database guide, read `DATABASE_END_TO_END_OVERVIEW.md`.
 
 The Prisma schema includes:
 
 - Access users, roles, permissions, role permissions, user roles, settings, and activity logs.
 - Members, trainers, membership plans, subscriptions, payments, attendance, and notifications.
 - Mobile accounts linked to members/trainers, encrypted temporary password fallback, and password reset code storage.
+- Mobile device tokens for Firebase Cloud Messaging.
+- Trainer groups, group memberships, workouts, and trainer schedules.
 - Admin password reset code storage for Access Control users.
 - Payment fields for manual and online flows, including currency, payment type, method, provider, phone number, reference ID, invoice ID, request ID, transaction ID, paid date, failure reason, and raw Waafi response.
 
@@ -223,6 +300,7 @@ Uploaded image files are stored locally under:
 
 ```text
 public/uploads/access-control
+public/uploads/workouts
 ```
 
 The app exposes uploaded assets through the existing Next.js public file serving path.
