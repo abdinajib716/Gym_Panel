@@ -1,6 +1,7 @@
 "use client"
 
 import { CrudPage, StatusPill, currency, shortDate } from "@/components/gym/crud-page"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 type RecordValue = Record<string, unknown>
 
@@ -81,6 +82,18 @@ const readStatusOptions = [
   { label: "Read", value: "READ" },
 ]
 
+const storeProductStatusOptions = [
+  { label: "Published", value: "PUBLISHED" },
+  { label: "Unpublished", value: "UNPUBLISHED" },
+]
+
+const storeOrderStatusOptions = [
+  { label: "Processing", value: "PROCESSING" },
+  { label: "Completed", value: "COMPLETED" },
+  { label: "Cancelled", value: "CANCELLED" },
+  { label: "Failed", value: "FAILED" },
+]
+
 function nested(record: RecordValue, key: string) {
   return key.split(".").reduce<unknown>((current, part) => {
     if (!current || typeof current !== "object") return undefined
@@ -98,6 +111,45 @@ function jsonBlock(value: unknown) {
     <pre className="max-h-72 overflow-auto rounded-md bg-muted/35 p-3 text-xs font-normal text-muted-foreground">
       {JSON.stringify(value ?? {}, null, 2)}
     </pre>
+  )
+}
+
+function initials(value: unknown) {
+  return String(value || "?")
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase()
+}
+
+function PersonCell({ record, imageKey = "profileImage" }: { record: RecordValue; imageKey?: string }) {
+  const name = String(record.fullName ?? record.name ?? "Unknown")
+  const image = nested(record, imageKey) as string | null | undefined
+
+  return (
+    <div className="flex min-w-44 items-center gap-3">
+      <Avatar className="h-10 w-10 ring-1 ring-border/80">
+        <AvatarImage src={image || undefined} alt={name} />
+        <AvatarFallback className="bg-primary/10 text-primary">{initials(name)}</AvatarFallback>
+      </Avatar>
+      <div className="min-w-0">
+        <p className="truncate font-medium text-foreground">{name}</p>
+        <p className="truncate text-xs text-muted-foreground">{String(record.phoneNumber ?? record.email ?? "")}</p>
+      </div>
+    </div>
+  )
+}
+
+function ProductImageCell({ record }: { record: RecordValue }) {
+  const name = String(record.name ?? "Product")
+  const image = record.image as string | null | undefined
+
+  return (
+    <Avatar className="h-11 w-11 rounded-xl ring-1 ring-border/80">
+      <AvatarImage src={image || undefined} alt={name} className="object-cover" />
+      <AvatarFallback className="rounded-xl bg-primary/10 text-primary">{initials(name)}</AvatarFallback>
+    </Avatar>
   )
 }
 
@@ -150,7 +202,7 @@ export function MembersPage() {
         { name: "address", label: "Address", section: "Member details" },
         { name: "dateOfBirth", label: "Date of birth", type: "date", section: "Member details" },
         { name: "emergencyContact", label: "Emergency contact", section: "Member details" },
-        { name: "profileImage", label: "Profile image URL", section: "Member details" },
+        { name: "profileImage", label: "Profile image", type: "image", section: "Member details", className: "md:col-span-2" },
         { name: "status", label: "Account status", type: "select", options: memberStatusOptions, section: "Member details" },
         { name: "trainerId", label: "Trainer", type: "select", optionsSource: "trainers", optionLabel: "fullName", section: "Member details" },
         { name: "initialPlanId", label: "Membership plan", type: "select", optionsSource: "plans", optionLabel: "name", section: "Membership plan", hideOnEdit: true },
@@ -163,7 +215,7 @@ export function MembersPage() {
         { name: "paymentNotes", label: "Notes", type: "textarea", section: "Manual payment", className: "md:col-span-2", hideOnEdit: true },
       ]}
       columns={[
-        { key: "fullName", label: "Name" },
+        { key: "fullName", label: "Member", render: (record) => <PersonCell record={record} /> },
         { key: "phoneNumber", label: "Phone" },
         { key: "email", label: "Email" },
         { key: "status", label: "Status", render: (record) => <StatusPill value={String(record.status)} /> },
@@ -314,7 +366,6 @@ export function PaymentsPage() {
         { key: "rawResponse.body.params.description", label: "Waafi Description" },
         { key: "paymentDate", label: "Payment Date", render: (record) => shortDate(record.paymentDate) },
         { key: "paidAt", label: "Paid At", render: (record) => shortDate(record.paidAt) },
-        { key: "rawResponse", label: "Raw Waafi Response", render: (record) => jsonBlock(record.rawResponse) },
       ]}
     />
   )
@@ -405,6 +456,7 @@ export function TrainersPage() {
         gender: "MALE",
         specialty: "",
         availability: "",
+        profileImage: "",
         status: "ACTIVE",
       }}
       fields={[
@@ -414,10 +466,11 @@ export function TrainersPage() {
         { name: "gender", label: "Gender", type: "select", options: genderOptions },
         { name: "specialty", label: "Specialty" },
         { name: "availability", label: "Availability" },
+        { name: "profileImage", label: "Profile image", type: "image", className: "md:col-span-2" },
         { name: "status", label: "Status", type: "select", options: activeOptions },
       ]}
       columns={[
-        { key: "fullName", label: "Name" },
+        { key: "fullName", label: "Trainer", render: (record) => <PersonCell record={record} /> },
         { key: "phoneNumber", label: "Phone" },
         { key: "email", label: "Email" },
         { key: "specialty", label: "Specialty" },
@@ -431,10 +484,167 @@ export function TrainersPage() {
         { key: "gender", label: "Gender" },
         { key: "specialty", label: "Specialty" },
         { key: "availability", label: "Availability" },
+        { key: "profileImage", label: "Profile image" },
         { key: "status", label: "Profile status", render: (record) => <StatusPill value={String(record.status)} /> },
         { key: "mobileAccount.accountStatus", label: "Login status", render: (record) => <StatusPill value={String(nested(record, "mobileAccount.accountStatus") ?? "INACTIVE")} /> },
         { key: "mobileAccount.lastLoginAt", label: "Last login", render: (record) => shortDate(nested(record, "mobileAccount.lastLoginAt")) },
         { key: "createdAt", label: "Created", render: (record) => shortDate(record.createdAt) },
+      ]}
+    />
+  )
+}
+
+export function StoreProductsPage() {
+  return (
+    <CrudPage
+      title="Store Products"
+      description="Create, publish, unpublish, and track stock for products sold in the mobile app."
+      breadcrumb={["Dashboard", "Store", "Products"]}
+      endpoint="/api/v1/store/products"
+      dataKey="products"
+      recordName="product"
+      bulkDeleteResource="store-products"
+      searchPlaceholder="Search products by name or description"
+      statusOptions={storeProductStatusOptions}
+      defaultValues={{
+        name: "",
+        category: "",
+        image: "",
+        description: "",
+        price: 0,
+        availableQuantity: 0,
+        status: "UNPUBLISHED",
+      }}
+      fields={[
+        { name: "name", label: "Product name" },
+        { name: "category", label: "Category", placeholder: "Supplements, apparel, equipment..." },
+        { name: "image", label: "Product image", type: "image", className: "md:col-span-2" },
+        { name: "description", label: "Description", type: "textarea", className: "md:col-span-2" },
+        { name: "price", label: "Price", type: "number" },
+        { name: "availableQuantity", label: "Available quantity", type: "number" },
+        { name: "status", label: "Publication status", type: "select", options: storeProductStatusOptions },
+      ]}
+      columns={[
+        { key: "image", label: "Image", render: (record) => <ProductImageCell record={record} /> },
+        { key: "name", label: "Product" },
+        { key: "category", label: "Category" },
+        { key: "price", label: "Price", render: (record) => currency(record.price) },
+        { key: "availableQuantity", label: "Available" },
+        { key: "soldQuantity", label: "Sold" },
+        { key: "status", label: "Status", render: (record) => <StatusPill value={String(record.status)} /> },
+      ]}
+      detailFields={[
+        { key: "name", label: "Product name" },
+        { key: "category", label: "Category" },
+        { key: "image", label: "Product image" },
+        { key: "description", label: "Description" },
+        { key: "price", label: "Price", render: (record) => currency(record.price) },
+        { key: "availableQuantity", label: "Available quantity" },
+        { key: "soldQuantity", label: "Sold orders" },
+        { key: "status", label: "Publication status", render: (record) => <StatusPill value={String(record.status)} /> },
+        { key: "createdAt", label: "Created", render: (record) => shortDate(record.createdAt) },
+      ]}
+    />
+  )
+}
+
+export function StoreOrdersPage() {
+  return (
+    <CrudPage
+      title="Store Orders"
+      description="Review paid product orders and update fulfillment status."
+      breadcrumb={["Dashboard", "Store", "Orders"]}
+      endpoint="/api/v1/store/orders"
+      dataKey="orders"
+      recordName="order"
+      searchPlaceholder="Search order number, customer, phone, product, or EVC reference"
+      statusOptions={paymentStatusOptions}
+      methodOptions={storeOrderStatusOptions}
+      methodFilterLabel="All order statuses"
+      showDateFilters
+      allowCreate={false}
+      allowDelete={false}
+      defaultValues={{ orderStatus: "PROCESSING" }}
+      fields={[
+        { name: "orderStatus", label: "Order status", type: "select", options: storeOrderStatusOptions },
+      ]}
+      columns={[
+        { key: "orderNumber", label: "Order number" },
+        { key: "buyerName", label: "Customer" },
+        { key: "buyerType", label: "Type", render: (record) => <StatusPill value={String(record.buyerType)} /> },
+        { key: "product.name", label: "Product" },
+        { key: "quantity", label: "Qty" },
+        { key: "totalAmount", label: "Total", render: (record) => currency(record.totalAmount) },
+        { key: "paymentStatus", label: "Payment", render: (record) => <StatusPill value={String(record.paymentStatus)} /> },
+        { key: "orderStatus", label: "Order", render: (record) => <StatusPill value={String(record.orderStatus)} /> },
+        { key: "evcTransactionReference", label: "EVC Ref", render: (record) => compactText(record.evcTransactionReference) },
+        { key: "orderDate", label: "Order date", render: (record) => shortDate(record.orderDate) },
+      ]}
+      detailFields={[
+        { key: "orderNumber", label: "Order number" },
+        { key: "buyerName", label: "Customer name" },
+        { key: "buyerType", label: "Customer type", render: (record) => <StatusPill value={String(record.buyerType)} /> },
+        { key: "buyerPhoneNumber", label: "Phone number" },
+        { key: "product.name", label: "Product" },
+        { key: "quantity", label: "Quantity" },
+        { key: "unitPrice", label: "Unit price", render: (record) => currency(record.unitPrice) },
+        { key: "totalAmount", label: "Total amount", render: (record) => currency(record.totalAmount) },
+        { key: "paymentMethod", label: "Payment method", render: (record) => <StatusPill value={String(record.paymentMethod)} /> },
+        { key: "paymentStatus", label: "Payment status", render: (record) => <StatusPill value={String(record.paymentStatus)} /> },
+        { key: "orderStatus", label: "Order status", render: (record) => <StatusPill value={String(record.orderStatus)} /> },
+        { key: "evcTransactionReference", label: "EVC transaction reference" },
+        { key: "orderDate", label: "Order date", render: (record) => shortDate(record.orderDate) },
+        { key: "paidAt", label: "Paid at", render: (record) => shortDate(record.paidAt) },
+      ]}
+    />
+  )
+}
+
+export function StoreTransactionsPage() {
+  return (
+    <CrudPage
+      title="Store Transactions"
+      description="View Waafi/EVC payment attempts for product purchases."
+      breadcrumb={["Dashboard", "Store", "Transactions"]}
+      endpoint="/api/v1/store/transactions"
+      dataKey="transactions"
+      recordName="transaction"
+      searchPlaceholder="Search transaction, order number, customer, phone, or product"
+      statusOptions={paymentStatusOptions}
+      showDateFilters
+      allowCreate={false}
+      allowEdit={false}
+      allowDelete={false}
+      defaultValues={{}}
+      fields={[]}
+      columns={[
+        { key: "transactionReference", label: "Transaction ref", render: (record) => compactText(record.transactionReference ?? record.requestId) },
+        { key: "orderNumber", label: "Order number", render: (record) => compactText(record.orderNumber) },
+        { key: "buyerName", label: "Customer" },
+        { key: "buyerType", label: "Type", render: (record) => <StatusPill value={String(record.buyerType)} /> },
+        { key: "phoneNumber", label: "Phone" },
+        { key: "product.name", label: "Product" },
+        { key: "amount", label: "Amount", render: (record) => currency(record.amount) },
+        { key: "paymentStatus", label: "Status", render: (record) => <StatusPill value={String(record.paymentStatus)} /> },
+        { key: "transactionDate", label: "Date", render: (record) => shortDate(record.transactionDate) },
+      ]}
+      detailFields={[
+        { key: "transactionReference", label: "Transaction reference" },
+        { key: "orderNumber", label: "Order number" },
+        { key: "buyerName", label: "Customer" },
+        { key: "buyerType", label: "Customer type", render: (record) => <StatusPill value={String(record.buyerType)} /> },
+        { key: "phoneNumber", label: "Phone number" },
+        { key: "product.name", label: "Product" },
+        { key: "quantity", label: "Quantity" },
+        { key: "amount", label: "Amount", render: (record) => currency(record.amount) },
+        { key: "paymentMethod", label: "Payment method", render: (record) => <StatusPill value={String(record.paymentMethod)} /> },
+        { key: "provider", label: "Provider" },
+        { key: "paymentStatus", label: "Payment status", render: (record) => <StatusPill value={String(record.paymentStatus)} /> },
+        { key: "requestId", label: "Request ID" },
+        { key: "referenceId", label: "Reference ID" },
+        { key: "invoiceId", label: "Invoice ID" },
+        { key: "failedReason", label: "Failure reason" },
+        { key: "transactionDate", label: "Transaction date", render: (record) => shortDate(record.transactionDate) },
       ]}
     />
   )

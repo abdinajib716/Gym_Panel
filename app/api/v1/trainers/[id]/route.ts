@@ -65,6 +65,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         ...(payload.gender !== undefined ? { gender: payload.gender } : {}),
         ...(payload.specialty !== undefined ? { specialty: payload.specialty } : {}),
         ...(payload.availability !== undefined ? { availability: emptyToNull(payload.availability) } : {}),
+        ...(payload.profileImage !== undefined ? { profileImage: emptyToNull(payload.profileImage) } : {}),
         ...(payload.status !== undefined ? { status: payload.status } : {}),
       },
     })

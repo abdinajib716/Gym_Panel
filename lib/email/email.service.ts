@@ -59,17 +59,32 @@ export async function sendConfiguredEmail(payload: EmailPayload) {
       pass: settings.smtpPassword,
     },
     requireTLS: settings.encryption === "tls",
+    connectionTimeout: 15000,
+    greetingTimeout: 15000,
+    socketTimeout: 20000,
   })
 
   const fromName = settings.fromName || settings.siteName || "Gym Admin"
 
-  const result = await transporter.sendMail({
-    from: `"${fromName.replaceAll('"', "'")}" <${settings.fromEmail}>`,
-    to: payload.to,
-    subject: payload.subject,
-    text: payload.text,
-    html: payload.html || textToHtml(payload.text),
-  })
+  let result: Awaited<ReturnType<typeof transporter.sendMail>>
+
+  try {
+    await transporter.verify()
+    result = await transporter.sendMail({
+      from: `"${fromName.replaceAll('"', "'")}" <${settings.fromEmail}>`,
+      to: payload.to,
+      subject: payload.subject,
+      text: payload.text,
+      html: payload.html || textToHtml(payload.text),
+    })
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown SMTP error"
+    throw new AppError(502, `Email delivery failed: ${message}`, "EMAIL_DELIVERY_FAILED")
+  }
+
+  if (result.rejected.length > 0) {
+    throw new AppError(502, `Email rejected for ${result.rejected.join(", ")}`, "EMAIL_REJECTED")
+  }
 
   return {
     messageId: result.messageId,

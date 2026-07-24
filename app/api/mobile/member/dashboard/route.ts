@@ -42,6 +42,7 @@ export async function GET(request: NextRequest) {
         fullName: account.member.fullName,
         phoneNumber: account.member.phoneNumber,
         email: account.member.email,
+        profileImage: account.member.profileImage,
         status: account.member.status,
       },
       account: {

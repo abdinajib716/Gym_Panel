@@ -66,10 +66,11 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     })
 
     if (payload.roleIds) {
+      const roleId = payload.roleIds[0]
       await prisma.accessUserRole.deleteMany({ where: { userId: id } })
-      if (payload.roleIds.length > 0) {
+      if (roleId) {
         await prisma.accessUserRole.createMany({
-          data: payload.roleIds.map((roleId: string) => ({ userId: id, roleId })),
+          data: [{ userId: id, roleId }],
         })
       }
     }

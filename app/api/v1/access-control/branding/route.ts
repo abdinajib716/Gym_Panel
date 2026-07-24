@@ -4,7 +4,7 @@ import path from "node:path"
 import { withErrorHandling } from "@/lib/error-handler"
 import { prisma } from "@/lib/prisma"
 
-const imageFields = ["siteLogoFullLight", "siteLogoFullDark", "siteIcon"] as const
+const imageFields = ["siteLogoFullLight", "siteLogoFullDark", "siteIcon", "siteFavicon", "loginPageLogo"] as const
 
 function localUploadExists(value: string | null) {
   if (!value?.startsWith("/uploads/")) return true
@@ -39,6 +39,8 @@ export async function GET() {
         siteLogoFullLight: true,
         siteLogoFullDark: true,
         siteIcon: true,
+        siteFavicon: true,
+        loginPageLogo: true,
       },
     })
 

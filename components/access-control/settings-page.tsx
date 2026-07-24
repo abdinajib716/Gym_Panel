@@ -196,6 +196,8 @@ export function AccessControlSettingsPage() {
           siteLogoFullLight: response.settings.siteLogoFullLight,
           siteLogoFullDark: response.settings.siteLogoFullDark,
           siteIcon: response.settings.siteIcon,
+          siteFavicon: response.settings.siteFavicon,
+          loginPageLogo: response.settings.loginPageLogo,
         },
       }, false)
     } catch (error) {

@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { signIn } from "next-auth/react"
-import { LockKeyhole, Mail } from "lucide-react"
+import { Eye, EyeOff, LockKeyhole, Mail, ShieldCheck } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -23,6 +23,8 @@ export function SignInForm() {
   const [password, setPassword] = useState("")
   const [resetCode, setResetCode] = useState("")
   const [newPassword, setNewPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
+  const [showNewPassword, setShowNewPassword] = useState(false)
   const [errors, setErrors] = useState<{
     email?: string
     password?: string
@@ -133,16 +135,19 @@ export function SignInForm() {
       : "Enter the code from your email and choose a new password."
 
   return (
-    <Card className="w-full max-w-md rounded-2xl border border-border/70 shadow-[0_20px_40px_-34px_rgba(15,23,42,0.45)]">
-      <CardHeader className="space-y-2">
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">Superadmin access</p>
-        <CardTitle className="text-3xl" style={{ fontFamily: "var(--font-space-grotesk)" }}>
+    <Card className="w-full rounded-[1.75rem] border border-border/70 bg-card/95 shadow-[0_30px_80px_-45px_rgba(15,23,42,0.55)] backdrop-blur">
+      <CardHeader className="space-y-3 px-6 pt-7 sm:px-8">
+        <p className="inline-flex w-fit items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+          <ShieldCheck className="h-3.5 w-3.5" />
+          Superadmin access
+        </p>
+        <CardTitle className="text-3xl sm:text-4xl" style={{ fontFamily: "var(--font-space-grotesk)" }}>
           {title}
         </CardTitle>
         <p className="text-sm text-muted-foreground">{description}</p>
       </CardHeader>
-      <CardContent>
-        <form onSubmit={mode === "signin" ? handleSubmit : mode === "forgot" ? handleForgotPassword : handleResetPassword} className="space-y-4">
+      <CardContent className="px-6 pb-7 sm:px-8">
+        <form onSubmit={mode === "signin" ? handleSubmit : mode === "forgot" ? handleForgotPassword : handleResetPassword} className="space-y-5">
           <label className="space-y-2">
             <span className="text-sm font-medium">User Email</span>
             <div className="relative">
@@ -169,7 +174,7 @@ export function SignInForm() {
               <div className="relative">
                 <LockKeyhole className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(event) => {
                     setPassword(event.target.value)
@@ -177,10 +182,18 @@ export function SignInForm() {
                       setErrors((current) => ({ ...current, password: undefined }))
                     }
                   }}
-                  className="pl-9"
+                  className="pl-9 pr-10"
                   placeholder="Enter your password"
                   aria-invalid={Boolean(errors.password)}
                 />
+                <button
+                  type="button"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition hover:text-foreground"
+                  onClick={() => setShowPassword((current) => !current)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
               </div>
               {errors.password ? <p className="text-xs font-medium text-destructive">{errors.password}</p> : null}
             </label>
@@ -206,16 +219,24 @@ export function SignInForm() {
                 <div className="relative">
                   <LockKeyhole className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
-                    type="password"
+                    type={showNewPassword ? "text" : "password"}
                     value={newPassword}
                     onChange={(event) => {
                       setNewPassword(event.target.value)
                       if (errors.newPassword) setErrors((current) => ({ ...current, newPassword: undefined }))
                     }}
-                    className="pl-9"
+                    className="pl-9 pr-10"
                     placeholder="Minimum 8 characters"
                     aria-invalid={Boolean(errors.newPassword)}
                   />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition hover:text-foreground"
+                    onClick={() => setShowNewPassword((current) => !current)}
+                    aria-label={showNewPassword ? "Hide password" : "Show password"}
+                  >
+                    {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
                 </div>
                 {errors.newPassword ? <p className="text-xs font-medium text-destructive">{errors.newPassword}</p> : null}
               </label>

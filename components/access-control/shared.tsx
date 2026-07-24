@@ -148,7 +148,7 @@ export function TableShell({
 }) {
   return (
     <div className={cn("overflow-hidden rounded-xl border border-border/70 bg-card", className)}>
-      <div className="overflow-x-auto">{children}</div>
+      <div className="overflow-x-auto overscroll-x-contain">{children}</div>
     </div>
   )
 }

@@ -8,10 +8,13 @@ import {
   Dumbbell,
   KeyRound,
   NotepadText,
+  Package,
+  ReceiptText,
   Rocket,
   Settings2,
   ShieldCheck,
   ShieldEllipsis,
+  ShoppingBag,
   UserCheck,
   Users,
 } from "lucide-react"
@@ -109,6 +112,33 @@ export const gymManagementNav: NavItem[] = [
   },
 ]
 
+export const storeNav: NavItem[] = [
+  {
+    title: "Products",
+    href: "/store/products",
+    icon: Package,
+    description: "Create products, manage stock, and publish items to the mobile store.",
+    status: "Live",
+    suggestedWidgets: ["Product table", "Stock", "Publish status"],
+  },
+  {
+    title: "Orders",
+    href: "/store/orders",
+    icon: ShoppingBag,
+    description: "Review mobile store orders and update fulfillment status.",
+    status: "Live",
+    suggestedWidgets: ["Order table", "Payment status", "Date filters"],
+  },
+  {
+    title: "Transactions",
+    href: "/store/transactions",
+    icon: ReceiptText,
+    description: "Audit Waafi/EVC store payment attempts and references.",
+    status: "Live",
+    suggestedWidgets: ["Transaction table", "EVC reference", "Payment result"],
+  },
+]
+
 export const accessControlNav: NavItem[] = [
   {
     title: "Settings",
@@ -170,6 +200,11 @@ export const sidebarNav: Array<NavItem | NavGroup> = [
     children: gymManagementNav,
   },
   {
+    title: "Store",
+    icon: ShoppingBag,
+    children: storeNav,
+  },
+  {
     title: "System",
     icon: ShieldEllipsis,
     children: accessControlNav,
@@ -177,7 +212,7 @@ export const sidebarNav: Array<NavItem | NavGroup> = [
 ]
 
 export function getNavItemByPath(pathname: string) {
-  return [...dashboardNav, ...gymManagementNav, ...accessControlNav].find((item) => item.href === pathname)
+  return [...dashboardNav, ...gymManagementNav, ...storeNav, ...accessControlNav].find((item) => item.href === pathname)
 }
 
 export function getPlaceholderItem(item: string) {

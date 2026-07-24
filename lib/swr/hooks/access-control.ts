@@ -101,7 +101,7 @@ export type AccessSettingsResponse = {
 
 export type AccessBrandingRecord = Pick<
   AccessSettingsRecord,
-  "siteName" | "siteLogoFullLight" | "siteLogoFullDark" | "siteIcon"
+  "siteName" | "siteLogoFullLight" | "siteLogoFullDark" | "siteIcon" | "siteFavicon" | "loginPageLogo"
 >
 
 export type AccessBrandingResponse = {

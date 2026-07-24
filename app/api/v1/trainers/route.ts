@@ -62,6 +62,7 @@ export async function POST(request: NextRequest) {
         gender: payload.gender,
         specialty: payload.specialty,
         availability: emptyToNull(payload.availability),
+        profileImage: emptyToNull(payload.profileImage),
         status: payload.status,
       },
     })

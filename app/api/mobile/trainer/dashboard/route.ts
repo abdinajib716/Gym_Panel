@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     return {
       success: true,
       welcome: `Welcome ${account.trainer.fullName}`,
-      trainer: { id: account.trainer.id, name: account.trainer.fullName, specialty: account.trainer.specialty },
+      trainer: { id: account.trainer.id, name: account.trainer.fullName, profileImage: account.trainer.profileImage, specialty: account.trainer.specialty },
       kpis: { total_members: totalMembers, total_groups: totalGroups, today_sessions: todaySchedule.length, upcoming_sessions: upcomingSessions, completed_sessions: completedSessions, missed_sessions: missedSessions },
       recent_members: recentMembers,
       today_schedule: todaySchedule,

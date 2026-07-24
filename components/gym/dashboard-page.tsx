@@ -30,7 +30,7 @@ function MiniTable({
   return (
     <AccessCard title={title}>
       <TableShell>
-        <table className="min-w-full text-sm">
+        <table className="w-full min-w-[560px] text-sm">
           <thead className="bg-muted/45 text-left text-xs uppercase tracking-[0.18em] text-muted-foreground">
             <tr>
               {columns.map((column) => (
@@ -77,7 +77,7 @@ export function GymDashboardPage() {
   ]
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <AccessPageHeader
         breadcrumb={["Dashboard"]}
         title="Gym Dashboard"
@@ -89,14 +89,15 @@ export function GymDashboardPage() {
           const Icon = card.icon
 
           return (
-            <Card key={card.label} className="rounded-2xl border border-border/70">
+            <Card key={card.label} className="rounded-2xl border border-border/70 bg-card/95 transition hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-30px_rgba(15,23,42,0.5)]">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">{card.label}</CardTitle>
-                <Icon className="h-4 w-4 text-primary" />
+                <div className="rounded-xl bg-primary/10 p-2 text-primary">
+                  <Icon className="h-4 w-4" />
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{String(card.value)}</div>
-                <p className="text-xs text-muted-foreground">Live gym data</p>
               </CardContent>
             </Card>
           )

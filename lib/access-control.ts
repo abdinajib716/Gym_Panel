@@ -59,6 +59,13 @@ const defaultPermissions = [
   { name: "payments.online_process", guardName: "web", groupKey: "payments" },
   { name: "payments.manual_create", guardName: "web", groupKey: "payments" },
   { name: "payments.status_check", guardName: "web", groupKey: "payments" },
+  { name: "store_products.view", guardName: "web", groupKey: "store" },
+  { name: "store_products.create", guardName: "web", groupKey: "store" },
+  { name: "store_products.update", guardName: "web", groupKey: "store" },
+  { name: "store_products.delete", guardName: "web", groupKey: "store" },
+  { name: "store_orders.view", guardName: "web", groupKey: "store" },
+  { name: "store_orders.update", guardName: "web", groupKey: "store" },
+  { name: "store_transactions.view", guardName: "web", groupKey: "store" },
 ]
 
 const defaultRoles = [
@@ -109,6 +116,13 @@ const defaultRoles = [
       "payments.online_process",
       "payments.manual_create",
       "payments.status_check",
+      "store_products.view",
+      "store_products.create",
+      "store_products.update",
+      "store_products.delete",
+      "store_orders.view",
+      "store_orders.update",
+      "store_transactions.view",
     ],
   },
   {
@@ -129,6 +143,9 @@ const defaultRoles = [
       "trainers.view",
       "waafi_config.view",
       "payments.status_check",
+      "store_products.view",
+      "store_orders.view",
+      "store_transactions.view",
     ],
   },
 ]

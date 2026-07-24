@@ -15,9 +15,10 @@ interface LogoProps {
 	variant?: "default" | "compact"
 	className?: string
 	href?: string | null
+	preferLoginLogo?: boolean
 }
 
-export function Logo({ variant = "default", className, href = "/" }: LogoProps) {
+export function Logo({ variant = "default", className, href = "/", preferLoginLogo = false }: LogoProps) {
 	const { resolvedTheme } = useTheme()
 	const { data } = useAccessBranding()
 	const [storedBranding, setStoredBranding] = useState<AccessBrandingRecord | null>(null)
@@ -42,16 +43,22 @@ export function Logo({ variant = "default", className, href = "/" }: LogoProps) 
 
 		window.localStorage.setItem(BRANDING_STORAGE_KEY, JSON.stringify(data.branding))
 		setStoredBranding(data.branding)
+		setFailedImages({})
 	}, [data])
 
 	const branding = data?.branding ?? storedBranding
 	const siteName = branding?.siteName || "Startap Admin"
 	const rawLogoSrc = useMemo(
-		() =>
-			resolvedTheme === "dark"
+		() => {
+			if (preferLoginLogo && branding?.loginPageLogo) {
+				return branding.loginPageLogo
+			}
+
+			return resolvedTheme === "dark"
 				? branding?.siteLogoFullDark || branding?.siteLogoFullLight
-				: branding?.siteLogoFullLight || branding?.siteLogoFullDark,
-		[branding, resolvedTheme],
+				: branding?.siteLogoFullLight || branding?.siteLogoFullDark
+		},
+		[branding, preferLoginLogo, resolvedTheme],
 	)
 	const rawIconSrc = branding?.siteIcon || branding?.siteLogoFullLight || branding?.siteLogoFullDark
 	const logoSrc = rawLogoSrc && !failedImages[rawLogoSrc] ? rawLogoSrc : null

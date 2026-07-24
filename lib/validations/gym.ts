@@ -52,12 +52,26 @@ export const trainerSchema = z.object({
   gender: z.enum(["MALE", "FEMALE", "OTHER"]),
   specialty: z.string().trim().min(1, "Specialty is required"),
   availability: optionalText,
+  profileImage: optionalText,
   status: z.enum(["ACTIVE", "INACTIVE"]).default("ACTIVE"),
 })
 
 export const trainerUpdateSchema = trainerSchema.partial()
 
 const optionalId = z.string().trim().optional().nullable().or(z.literal(""))
+
+export const trainerGroupSchema = z.object({
+  name: z.string().trim().min(1, "Group name is required"),
+  trainingDays: optionalText,
+  training_days: optionalText,
+  trainingTime: optionalText,
+  training_time: optionalText,
+  status: z.enum(["ACTIVE", "INACTIVE"]).default("ACTIVE"),
+  memberIds: z.array(z.string().trim().min(1)).optional(),
+  member_ids: z.array(z.string().trim().min(1)).optional(),
+})
+
+export const trainerGroupUpdateSchema = trainerGroupSchema.partial()
 
 export const workoutSchema = z.object({
   title: z.string().trim().min(1, "Workout title is required"),

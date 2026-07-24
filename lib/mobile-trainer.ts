@@ -48,17 +48,17 @@ export async function validateTrainerTarget(trainerId: string, memberId?: string
 }
 
 export const workoutInclude = {
-  member: { select: { id: true, fullName: true, phoneNumber: true } },
+  member: { select: { id: true, fullName: true, phoneNumber: true, profileImage: true } },
   group: { select: { id: true, name: true } },
-  trainer: { select: { id: true, fullName: true, specialty: true } },
+  trainer: { select: { id: true, fullName: true, profileImage: true, specialty: true } },
   schedules: { orderBy: { date: "asc" as const } },
 }
 
 export const scheduleInclude = {
-  member: { select: { id: true, fullName: true, phoneNumber: true } },
+  member: { select: { id: true, fullName: true, phoneNumber: true, profileImage: true } },
   group: { select: { id: true, name: true } },
   workout: { select: { id: true, title: true, image: true, description: true, sets: true, reps: true, durationMinutes: true } },
-  trainer: { select: { id: true, fullName: true } },
+  trainer: { select: { id: true, fullName: true, profileImage: true } },
 }
 
 export function dayBounds(value = new Date()) {

@@ -1,10 +1,10 @@
 "use client"
 
 import Link from "next/link"
-import { Home, LogOut, Menu, Settings, User } from "lucide-react"
+import { LogOut, Settings, User } from "lucide-react"
 import { signOut, useSession } from "next-auth/react"
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
 	DropdownMenu,
@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { GlobalSearch } from "@/components/ui/global-search"
 import { Logo } from "@/components/ui/logo"
+import { SidebarTrigger } from "@/components/ui/sidebar"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { getRoleLabel } from "@/lib/rbac"
 import { useAccessSettings } from "@/lib/swr"
@@ -39,26 +40,14 @@ export default function Header() {
 		<header className="bg-card border-b border-border sticky top-0 z-50 backdrop-blur-sm bg-card/95">
 			<div className={cn("mx-auto px-4 sm:px-6 lg:px-8", fullWidth ? "max-w-none" : "max-w-7xl")}>
 				<div className="flex items-center justify-between h-16">
-					<Logo href="/dashboard" variant="default" />
+					<div className="flex items-center gap-3">
+						<SidebarTrigger className="h-9 w-9 rounded-xl border-border/70 bg-background/60 shadow-none" />
+						<Logo href="/dashboard" variant="compact" className="md:hidden" />
+					</div>
 
 					<div className="flex items-center gap-3">
 						<GlobalSearch />
 						<ThemeToggle />
-						<Button
-							variant="ghost"
-							size="icon"
-							className="lg:hidden h-9 w-9"
-							onClick={() => window.dispatchEvent(new Event("open-mobile-nav"))}
-							aria-label="Open navigation menu"
-						>
-							<Menu className="w-4 h-4" />
-						</Button>
-						<Link href="/dashboard" className="hidden md:flex">
-							<Button variant="ghost" size="sm" className="gap-2">
-								<Home className="w-4 h-4" />
-								Home
-							</Button>
-						</Link>
 
 						<div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-full border border-primary/20">
 							<div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
@@ -67,8 +56,9 @@ export default function Header() {
 
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
-								<Button variant="ghost" className="relative hidden md:flex h-10 w-10 rounded-full hover:bg-primary transition-colors">
+								<Button variant="ghost" className="relative flex h-10 w-10 rounded-full hover:bg-primary transition-colors">
 									<Avatar className="h-10 w-10 ring-2 ring-primary/20 hover:ring-primary/40 transition-all">
+										<AvatarImage src={session?.user?.image ?? undefined} alt={userName} />
 										<AvatarFallback className="bg-primary/10 text-primary font-semibold">
 											{userInitials}
 										</AvatarFallback>
@@ -79,6 +69,7 @@ export default function Header() {
 								<DropdownMenuLabel className="p-4">
 									<div className="flex items-center gap-3">
 										<Avatar className="h-12 w-12">
+											<AvatarImage src={session?.user?.image ?? undefined} alt={userName} />
 											<AvatarFallback className="bg-primary/10 text-primary font-semibold text-lg">
 												{userInitials}
 											</AvatarFallback>
@@ -94,13 +85,17 @@ export default function Header() {
 									</div>
 								</DropdownMenuLabel>
 								<DropdownMenuSeparator />
-								<DropdownMenuItem className="py-2.5">
-									<User className="mr-2 h-4 w-4" />
-									<span>Profile</span>
+								<DropdownMenuItem asChild className="py-2.5">
+									<Link href="/profile">
+										<User className="mr-2 h-4 w-4" />
+										<span>Profile</span>
+									</Link>
 								</DropdownMenuItem>
-								<DropdownMenuItem className="py-2.5">
-									<Settings className="mr-2 h-4 w-4" />
-									<span>Settings</span>
+								<DropdownMenuItem asChild className="py-2.5">
+									<Link href="/access-control/settings">
+										<Settings className="mr-2 h-4 w-4" />
+										<span>Settings</span>
+									</Link>
 								</DropdownMenuItem>
 								<DropdownMenuSeparator />
 								<DropdownMenuItem className="py-2.5 text-destructive focus:text-destructive" onClick={() => signOut({ callbackUrl: "/signin" })}>

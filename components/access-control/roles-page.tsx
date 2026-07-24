@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Pencil, Plus, ShieldCheck, Trash2 } from "lucide-react"
+import { Plus, ShieldCheck } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
@@ -19,17 +19,7 @@ import {
   TableEmpty,
   TableShell,
 } from "@/components/access-control/shared"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+import { RowActions, defaultActionIcons } from "@/components/access-control/row-actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
@@ -178,7 +168,7 @@ export function AccessControlRolesPage() {
 
       <AccessCard title="Role Directory" description="Review and maintain role groups.">
         <TableShell>
-          <table className="min-w-full text-sm">
+          <table className="w-full min-w-[760px] text-sm">
             <thead className="bg-muted/45 text-left text-xs uppercase tracking-[0.18em] text-muted-foreground">
               <tr>
                 <th className="px-4 py-3"><input type="checkbox" aria-label="Select all roles" /></th>
@@ -209,31 +199,24 @@ export function AccessControlRolesPage() {
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex justify-end gap-2">
-                      <Button variant="outline" size="sm" className="gap-2" onClick={() => openEdit(role)}>
-                        <Pencil className="h-3.5 w-3.5" />
-                        Edit
-                      </Button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="destructive" size="sm" className="gap-2">
-                            <Trash2 className="h-3.5 w-3.5" />
-                            Delete
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Delete role</AlertDialogTitle>
-                            <AlertDialogDescription>This will permanently remove the {role.name} role.</AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction className="bg-destructive text-white hover:bg-destructive/90" onClick={() => handleDelete(role)}>
-                              Delete
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
+                    <div className="flex justify-end">
+                      <RowActions
+                        label={`Actions for ${role.name}`}
+                        actions={[
+                          { label: "Edit", icon: defaultActionIcons.edit, onClick: () => openEdit(role) },
+                          {
+                            label: "Delete",
+                            icon: defaultActionIcons.delete,
+                            destructive: true,
+                            separatorBefore: true,
+                            onClick: () => handleDelete(role),
+                            confirm: {
+                              title: "Delete role",
+                              description: `This will permanently remove the ${role.name} role.`,
+                            },
+                          },
+                        ]}
+                      />
                     </div>
                   </td>
                 </tr>

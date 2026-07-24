@@ -163,6 +163,7 @@ export async function requireAuth() {
 }
 
 export async function requirePermission(permission: string) {
+  await ensureAccessControlSeed()
   const session = await requireAuth()
 
   if (session.user.role === "SUPER_ADMIN" || session.user.roles?.includes("Super Admin")) {

@@ -117,6 +117,7 @@ export function mobileProfile(account: Awaited<ReturnType<typeof requireMobileAc
     accountId: account.id,
     role: account.role,
     name: person?.fullName,
+    profileImage: person?.profileImage,
     email: account.loginEmail,
     phone: account.loginPhone,
     accountStatus: account.accountStatus,

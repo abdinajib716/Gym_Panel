@@ -83,6 +83,7 @@ export async function POST(request: NextRequest) {
 
     const payload = createUserSchema.parse(await request.json())
     const passwordHash = payload.password ? await bcrypt.hash(payload.password, 10) : null
+    const roleId = payload.roleIds[0]
 
     const user = await prisma.accessUser.create({
       data: {
@@ -94,9 +95,7 @@ export async function POST(request: NextRequest) {
         passwordHash,
         displayName: payload.displayName || `${payload.firstName} ${payload.lastName}`.trim(),
         roles: {
-          create: payload.roleIds.map((roleId: string) => ({
-            roleId,
-          })),
+          create: [{ roleId }],
         },
       },
       include: {

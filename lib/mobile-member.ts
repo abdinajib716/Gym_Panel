@@ -131,6 +131,24 @@ export function safeNotification(notification: {
   }
 }
 
+export function safeAttendance(attendance: {
+  id: string
+  memberId: string
+  checkInDate: Date
+  method: string
+  status: string
+  createdAt: Date
+}) {
+  return {
+    id: attendance.id,
+    memberId: attendance.memberId,
+    checkInDate: attendance.checkInDate,
+    method: attendance.method,
+    status: attendance.status,
+    createdAt: attendance.createdAt,
+  }
+}
+
 export async function findMemberSubscription(memberId: string, subscriptionId: string) {
   const subscription = await prisma.subscription.findFirst({
     where: { id: subscriptionId, memberId },

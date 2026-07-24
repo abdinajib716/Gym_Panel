@@ -13,6 +13,7 @@ const bulkDeleteConfig = {
   payments: { permission: "payments.delete", label: "Payments" },
   attendance: { permission: "attendance.delete", label: "Attendance" },
   notifications: { permission: "notifications.delete", label: "Notifications" },
+  "store-products": { permission: "store_products.delete", label: "Store Products" },
 } as const
 
 type BulkDeleteResource = keyof typeof bulkDeleteConfig
@@ -37,6 +38,8 @@ async function deleteResource(resource: BulkDeleteResource, ids: string[]) {
       return prisma.attendance.deleteMany({ where: { id: { in: ids } } })
     case "notifications":
       return prisma.notification.deleteMany({ where: { id: { in: ids } } })
+    case "store-products":
+      return prisma.storeProduct.deleteMany({ where: { id: { in: ids }, orders: { none: {} }, transactions: { none: {} } } })
   }
 }
 

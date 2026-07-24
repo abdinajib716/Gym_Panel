@@ -8,56 +8,56 @@ datasource db {
 }
 
 model AccessControlSettings {
-  id                 String   @id @default(uuid())
-  key                String   @unique @default("global")
-  siteName           String   @default("Startap Admin")
-  siteLogoFullLight  String?
-  siteIcon           String?
-  siteLogoFullDark   String?
-  siteFavicon        String?
-  loginPageLogo      String?
-  themeMode          String   @default("system")
-  primaryColor       String   @default("#2f8fe8")
-  sidebarStyle       String   @default("default")
-  layoutWidth        String   @default("boxed")
-  headerStyle        String   @default("sticky")
-  mailDriver         String   @default("smtp")
-  fromName           String?
-  fromEmail          String?
-  smtpHost           String?
-  smtpPort           Int?
-  smtpUsername       String?
-  smtpPassword       String?
-  encryption         String   @default("tls")
-  firebaseEnabled    Boolean  @default(false)
-  firebaseProjectId  String?
+  id                  String   @id @default(uuid())
+  key                 String   @unique @default("global")
+  siteName            String   @default("Startap Admin")
+  siteLogoFullLight   String?
+  siteIcon            String?
+  siteLogoFullDark    String?
+  siteFavicon         String?
+  loginPageLogo       String?
+  themeMode           String   @default("system")
+  primaryColor        String   @default("#2f8fe8")
+  sidebarStyle        String   @default("default")
+  layoutWidth         String   @default("boxed")
+  headerStyle         String   @default("sticky")
+  mailDriver          String   @default("smtp")
+  fromName            String?
+  fromEmail           String?
+  smtpHost            String?
+  smtpPort            Int?
+  smtpUsername        String?
+  smtpPassword        String?
+  encryption          String   @default("tls")
+  firebaseEnabled     Boolean  @default(false)
+  firebaseProjectId   String?
   firebaseClientEmail String?
-  firebasePrivateKey String?
-  firebaseServerKey  String?
-  waafiEnabled       Boolean  @default(false)
-  waafiEnvironment   String   @default("test")
-  waafiApiBaseUrl    String?
-  waafiMerchantUid   String?
-  waafiApiUserId     String?
-  waafiApiKey        String?
+  firebasePrivateKey  String?
+  firebaseServerKey   String?
+  waafiEnabled        Boolean  @default(false)
+  waafiEnvironment    String   @default("test")
+  waafiApiBaseUrl     String?
+  waafiMerchantUid    String?
+  waafiApiUserId      String?
+  waafiApiKey         String?
   waafiMerchantNumber String?
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 }
 
 model AccessUser {
-  id           String              @id @default(uuid())
-  avatarUrl    String?
-  firstName    String
-  lastName     String
-  username     String              @unique
-  email        String              @unique
-  passwordHash String?
-  displayName  String?
-  createdAt    DateTime            @default(now())
-  updatedAt    DateTime            @updatedAt
-  roles        AccessUserRole[]
-  activityLogs AccessActivityLog[] @relation("ActivityActor")
+  id             String                @id @default(uuid())
+  avatarUrl      String?
+  firstName      String
+  lastName       String
+  username       String                @unique
+  email          String                @unique
+  passwordHash   String?
+  displayName    String?
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  roles          AccessUserRole[]
+  activityLogs   AccessActivityLog[]   @relation("ActivityActor")
   passwordResets AccessPasswordReset[]
 }
 
@@ -74,13 +74,13 @@ model AccessRole {
 }
 
 model AccessPermission {
-  id          String                 @id @default(uuid())
-  name        String
-  guardName   String                 @default("web")
-  groupKey    String
-  createdAt   DateTime               @default(now())
-  updatedAt   DateTime               @updatedAt
-  roles       AccessRolePermission[]
+  id        String                 @id @default(uuid())
+  name      String
+  guardName String                 @default("web")
+  groupKey  String
+  createdAt DateTime               @default(now())
+  updatedAt DateTime               @updatedAt
+  roles     AccessRolePermission[]
 
   @@unique([name, guardName])
 }
@@ -184,6 +184,23 @@ enum OnlinePaymentProvider {
   SAHAL
 }
 
+enum StoreProductStatus {
+  PUBLISHED
+  UNPUBLISHED
+}
+
+enum StoreBuyerType {
+  MEMBER
+  TRAINER
+}
+
+enum StoreOrderStatus {
+  PROCESSING
+  COMPLETED
+  CANCELLED
+  FAILED
+}
+
 enum AttendanceMethod {
   MANUAL
 }
@@ -256,24 +273,24 @@ enum MobileDevicePlatform {
 }
 
 model MobileAccount {
-  id                         String              @id @default(uuid())
+  id                         String                @id @default(uuid())
   role                       MobileAccountRole
   loginEmail                 String?
   loginPhone                 String?
   passwordHash               String
   temporaryPasswordEncrypted String?
-  mustChangePassword         Boolean             @default(true)
+  mustChangePassword         Boolean               @default(true)
   passwordChangedAt          DateTime?
   lastLoginAt                DateTime?
-  accountStatus              MobileAccountStatus @default(ACTIVE)
+  accountStatus              MobileAccountStatus   @default(ACTIVE)
   welcomeEmailSentAt         DateTime?
   welcomeEmailError          String?
-  memberId                   String?             @unique
-  trainerId                  String?             @unique
-  createdAt                  DateTime            @default(now())
-  updatedAt                  DateTime            @updatedAt
-  member                     Member?             @relation(fields: [memberId], references: [id], onDelete: Cascade)
-  trainer                    Trainer?            @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  memberId                   String?               @unique
+  trainerId                  String?               @unique
+  createdAt                  DateTime              @default(now())
+  updatedAt                  DateTime              @updatedAt
+  member                     Member?               @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  trainer                    Trainer?              @relation(fields: [trainerId], references: [id], onDelete: Cascade)
   passwordResets             MobilePasswordReset[]
   deviceTokens               MobileDeviceToken[]
 
@@ -329,28 +346,30 @@ model MobilePasswordReset {
 }
 
 model Member {
-  id               String          @id @default(uuid())
-  fullName         String
-  phoneNumber      String
-  email            String?         @unique
-  gender           Gender
-  address          String?
-  dateOfBirth      DateTime?
-  emergencyContact String?
-  profileImage     String?
-  status           MemberStatus    @default(PENDING)
-  trainerId        String?
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-  trainer          Trainer?        @relation(fields: [trainerId], references: [id], onDelete: SetNull)
-  subscriptions    Subscription[]
-  payments         Payment[]
-  attendance       Attendance[]
-  notifications    Notification[]
-  mobileAccount    MobileAccount?
-  groupMemberships TrainerGroupMember[]
-  workouts         Workout[]
-  trainerSchedules TrainerSchedule[]
+  id                String               @id @default(uuid())
+  fullName          String
+  phoneNumber       String
+  email             String?              @unique
+  gender            Gender
+  address           String?
+  dateOfBirth       DateTime?
+  emergencyContact  String?
+  profileImage      String?
+  status            MemberStatus         @default(PENDING)
+  trainerId         String?
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  trainer           Trainer?             @relation(fields: [trainerId], references: [id], onDelete: SetNull)
+  subscriptions     Subscription[]
+  payments          Payment[]
+  attendance        Attendance[]
+  notifications     Notification[]
+  mobileAccount     MobileAccount?
+  groupMemberships  TrainerGroupMember[]
+  workouts          Workout[]
+  trainerSchedules  TrainerSchedule[]
+  storeOrders       StoreOrder[]
+  storeTransactions StoreTransaction[]
 
   @@index([fullName])
   @@index([phoneNumber])
@@ -359,21 +378,24 @@ model Member {
 }
 
 model Trainer {
-  id           String        @id @default(uuid())
-  fullName     String
-  phoneNumber  String
-  email        String?       @unique
-  gender       Gender
-  specialty    String
-  availability String?
-  status       TrainerStatus @default(ACTIVE)
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  members      Member[]
-  mobileAccount MobileAccount?
-  groups       TrainerGroup[]
-  workouts     Workout[]
-  schedules    TrainerSchedule[]
+  id                String             @id @default(uuid())
+  fullName          String
+  phoneNumber       String
+  email             String?            @unique
+  gender            Gender
+  specialty         String
+  availability      String?
+  profileImage      String?
+  status            TrainerStatus      @default(ACTIVE)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  members           Member[]
+  mobileAccount     MobileAccount?
+  groups            TrainerGroup[]
+  workouts          Workout[]
+  schedules         TrainerSchedule[]
+  storeOrders       StoreOrder[]
+  storeTransactions StoreTransaction[]
 
   @@index([fullName])
   @@index([status])
@@ -502,17 +524,17 @@ model Subscription {
 }
 
 model Payment {
-  id             String          @id @default(uuid())
+  id             String                 @id @default(uuid())
   memberId       String
   subscriptionId String?
   planId         String?
-  amount         Decimal         @db.Decimal(10, 2)
-  currency       String          @default("USD")
-  paymentType    PaymentType     @default(MANUAL)
+  amount         Decimal                @db.Decimal(10, 2)
+  currency       String                 @default("USD")
+  paymentType    PaymentType            @default(MANUAL)
   method         PaymentMethod
   onlineProvider OnlinePaymentProvider?
-  status         PaymentStatus   @default(PENDING)
-  paymentDate    DateTime        @default(now())
+  status         PaymentStatus          @default(PENDING)
+  paymentDate    DateTime               @default(now())
   paidAt         DateTime?
   reference      String?
   referenceId    String?
@@ -524,11 +546,11 @@ model Payment {
   provider       String?
   failedReason   String?
   rawResponse    Json?
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  member         Member          @relation(fields: [memberId], references: [id], onDelete: Cascade)
-  subscription   Subscription?   @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
-  plan           MembershipPlan? @relation(fields: [planId], references: [id], onDelete: SetNull)
+  createdAt      DateTime               @default(now())
+  updatedAt      DateTime               @updatedAt
+  member         Member                 @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  subscription   Subscription?          @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+  plan           MembershipPlan?        @relation(fields: [planId], references: [id], onDelete: SetNull)
 
   @@index([memberId])
   @@index([subscriptionId])
@@ -539,6 +561,105 @@ model Payment {
   @@index([onlineProvider])
   @@index([requestId])
   @@index([paymentDate])
+}
+
+model StoreProduct {
+  id                String             @id @default(uuid())
+  name              String
+  category          String?
+  image             String?
+  description       String?
+  price             Decimal            @db.Decimal(10, 2)
+  availableQuantity Int                @default(0)
+  status            StoreProductStatus @default(UNPUBLISHED)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  orders            StoreOrder[]
+  transactions      StoreTransaction[]
+
+  @@index([name])
+  @@index([category])
+  @@index([status])
+  @@index([availableQuantity])
+}
+
+model StoreOrder {
+  id                      String                 @id @default(uuid())
+  orderNumber             String                 @unique
+  buyerName               String
+  buyerType               StoreBuyerType
+  buyerPhoneNumber        String
+  memberId                String?
+  trainerId               String?
+  productId               String
+  quantity                Int
+  unitPrice               Decimal                @db.Decimal(10, 2)
+  totalAmount             Decimal                @db.Decimal(10, 2)
+  currency                String                 @default("USD")
+  paymentMethod           PaymentMethod          @default(WAAFI_PAY)
+  onlineProvider          OnlinePaymentProvider?
+  evcTransactionReference String?
+  paymentStatus           PaymentStatus          @default(PAID)
+  orderStatus             StoreOrderStatus       @default(PROCESSING)
+  requestId               String?
+  referenceId             String?
+  invoiceId               String?
+  paidAt                  DateTime?
+  orderDate               DateTime               @default(now())
+  createdAt               DateTime               @default(now())
+  updatedAt               DateTime               @updatedAt
+  member                  Member?                @relation(fields: [memberId], references: [id], onDelete: SetNull)
+  trainer                 Trainer?               @relation(fields: [trainerId], references: [id], onDelete: SetNull)
+  product                 StoreProduct           @relation(fields: [productId], references: [id], onDelete: Restrict)
+  transaction             StoreTransaction?
+
+  @@index([buyerType])
+  @@index([memberId])
+  @@index([trainerId])
+  @@index([productId])
+  @@index([paymentStatus])
+  @@index([orderStatus])
+  @@index([orderDate])
+}
+
+model StoreTransaction {
+  id                   String                 @id @default(uuid())
+  transactionReference String?
+  orderId              String?                @unique
+  orderNumber          String?
+  buyerName            String
+  buyerType            StoreBuyerType
+  phoneNumber          String
+  memberId             String?
+  trainerId            String?
+  productId            String
+  quantity             Int
+  amount               Decimal                @db.Decimal(10, 2)
+  currency             String                 @default("USD")
+  paymentMethod        PaymentMethod          @default(WAAFI_PAY)
+  provider             OnlinePaymentProvider?
+  paymentStatus        PaymentStatus          @default(PENDING)
+  requestId            String                 @unique
+  referenceId          String?
+  invoiceId            String?
+  failedReason         String?
+  rawResponse          Json?
+  transactionDate      DateTime               @default(now())
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  order                StoreOrder?            @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  member               Member?                @relation(fields: [memberId], references: [id], onDelete: SetNull)
+  trainer              Trainer?               @relation(fields: [trainerId], references: [id], onDelete: SetNull)
+  product              StoreProduct           @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@index([transactionReference])
+  @@index([orderNumber])
+  @@index([buyerType])
+  @@index([memberId])
+  @@index([trainerId])
+  @@index([productId])
+  @@index([paymentStatus])
+  @@index([transactionDate])
 }
 
 model Attendance {
@@ -557,16 +678,16 @@ model Attendance {
 }
 
 model Notification {
-  id          String                 @id @default(uuid())
-  title       String
-  message     String
-  type        NotificationType
-  target      NotificationTarget     @default(ALL_MEMBERS)
-  memberId    String?
-  readStatus  NotificationReadStatus @default(UNREAD)
-  createdAt   DateTime               @default(now())
-  updatedAt   DateTime               @updatedAt
-  member      Member?                @relation(fields: [memberId], references: [id], onDelete: SetNull)
+  id         String                 @id @default(uuid())
+  title      String
+  message    String
+  type       NotificationType
+  target     NotificationTarget     @default(ALL_MEMBERS)
+  memberId   String?
+  readStatus NotificationReadStatus @default(UNREAD)
+  createdAt  DateTime               @default(now())
+  updatedAt  DateTime               @updatedAt
+  member     Member?                @relation(fields: [memberId], references: [id], onDelete: SetNull)
 
   @@index([type])
   @@index([target])

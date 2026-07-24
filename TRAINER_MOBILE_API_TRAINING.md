@@ -271,7 +271,8 @@ Request:
   "email": "trainer@example.com",
   "gender": "MALE",
   "specialty": "Strength Training",
-  "availability": "Mon-Fri 8AM-4PM"
+  "availability": "Mon-Fri 8AM-4PM",
+  "profileImage": "/uploads/access-control/trainer.webp"
 }
 ```
 
@@ -332,28 +333,163 @@ GET /api/mobile/trainer/members/{memberId}/schedules
 GET /api/mobile/trainer/groups
 ```
 
-### 8.2 Group Details
+### 8.2 Create Group
+
+```http
+POST /api/mobile/trainer/groups
+```
+
+Request:
+
+```json
+{
+  "name": "Morning Strength Group",
+  "trainingDays": "Monday, Wednesday, Friday",
+  "trainingTime": "08:00",
+  "status": "ACTIVE",
+  "memberIds": ["member_id_1", "member_id_2"]
+}
+```
+
+Snake case aliases are also accepted:
+
+```json
+{
+  "training_days": "Monday, Wednesday, Friday",
+  "training_time": "08:00",
+  "member_ids": ["member_id_1", "member_id_2"]
+}
+```
+
+Rules:
+
+- Every `memberId` must belong to the authenticated trainer.
+- `memberIds` is optional; the trainer can create an empty group and add members later.
+
+### 8.3 Group Details
 
 ```http
 GET /api/mobile/trainer/groups/{groupId}
 ```
 
-### 8.3 Group Members
+### 8.4 Update Group
+
+```http
+PUT /api/mobile/trainer/groups/{groupId}
+```
+
+Request can include any group fields:
+
+```json
+{
+  "name": "Updated Morning Group",
+  "trainingDays": "Tuesday, Thursday",
+  "trainingTime": "07:30",
+  "status": "ACTIVE"
+}
+```
+
+### 8.5 Delete Group
+
+```http
+DELETE /api/mobile/trainer/groups/{groupId}
+```
+
+### 8.6 Group Members
 
 ```http
 GET /api/mobile/trainer/groups/{groupId}/members
 ```
 
-### 8.4 Group Workouts
+### 8.7 Add Members to Group
+
+```http
+POST /api/mobile/trainer/groups/{groupId}/members
+```
+
+Request for one member:
+
+```json
+{
+  "memberId": "member_id"
+}
+```
+
+Request for multiple members:
+
+```json
+{
+  "memberIds": ["member_id_1", "member_id_2"]
+}
+```
+
+Snake case aliases are accepted:
+
+```json
+{
+  "member_id": "member_id"
+}
+```
+
+### 8.8 Remove Member from Group
+
+```http
+DELETE /api/mobile/trainer/groups/{groupId}/members
+```
+
+Request:
+
+```json
+{
+  "memberId": "member_id"
+}
+```
+
+### 8.9 Group Workouts
 
 ```http
 GET /api/mobile/trainer/groups/{groupId}/workouts
 ```
 
-### 8.5 Group Schedules
+### 8.10 Group Schedules
 
 ```http
 GET /api/mobile/trainer/groups/{groupId}/schedules
+```
+
+### 8.11 Assign Workout to Group
+
+Create a new workout for a group:
+
+```http
+POST /api/mobile/trainer/workouts
+```
+
+```json
+{
+  "groupId": "group_id",
+  "title": "Group Cardio",
+  "description": "Treadmill intervals",
+  "image": "/uploads/workouts/cardio.webp",
+  "sets": 4,
+  "reps": 10,
+  "durationMinutes": 30,
+  "difficulty": "INTERMEDIATE",
+  "category": "Cardio",
+  "status": "ACTIVE"
+}
+```
+
+Assign an existing workout to a group:
+
+```http
+POST /api/mobile/trainer/workouts/{workoutId}/assign-group
+```
+
+```json
+{
+  "groupId": "group_id"
+}
 ```
 
 ## 9. Attendance Summary

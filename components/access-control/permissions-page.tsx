@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { KeyRound, Pencil, Plus, Trash2 } from "lucide-react"
+import { KeyRound, Plus } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
@@ -19,17 +19,7 @@ import {
   TableEmpty,
   TableShell,
 } from "@/components/access-control/shared"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+import { RowActions, defaultActionIcons } from "@/components/access-control/row-actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
@@ -161,7 +151,7 @@ export function AccessControlPermissionsPage() {
 
       <AccessCard title="Permission Registry" description="Review and maintain granular actions.">
         <TableShell>
-          <table className="min-w-full text-sm">
+          <table className="w-full min-w-[720px] text-sm">
             <thead className="bg-muted/45 text-left text-xs uppercase tracking-[0.18em] text-muted-foreground">
               <tr>
                 <th className="px-4 py-3"><input type="checkbox" aria-label="Select all permissions" /></th>
@@ -185,31 +175,24 @@ export function AccessControlPermissionsPage() {
                     </Pill>
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex justify-end gap-2">
-                      <Button variant="outline" size="sm" className="gap-2" onClick={() => openEdit(permission)}>
-                        <Pencil className="h-3.5 w-3.5" />
-                        Edit
-                      </Button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="destructive" size="sm" className="gap-2">
-                            <Trash2 className="h-3.5 w-3.5" />
-                            Delete
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Delete permission</AlertDialogTitle>
-                            <AlertDialogDescription>This will permanently remove the {permission.name} permission.</AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction className="bg-destructive text-white hover:bg-destructive/90" onClick={() => handleDelete(permission)}>
-                              Delete
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
+                    <div className="flex justify-end">
+                      <RowActions
+                        label={`Actions for ${permission.name}`}
+                        actions={[
+                          { label: "Edit", icon: defaultActionIcons.edit, onClick: () => openEdit(permission) },
+                          {
+                            label: "Delete",
+                            icon: defaultActionIcons.delete,
+                            destructive: true,
+                            separatorBefore: true,
+                            onClick: () => handleDelete(permission),
+                            confirm: {
+                              title: "Delete permission",
+                              description: `This will permanently remove the ${permission.name} permission.`,
+                            },
+                          },
+                        ]}
+                      />
                     </div>
                   </td>
                 </tr>

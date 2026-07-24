@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { Copy, Eye, EyeOff, KeyRound, Mail, Pencil, Plus, ShieldCheck, ShieldX, Trash2 } from "lucide-react"
+import { Copy, Eye, EyeOff, KeyRound, Mail, Plus, ShieldCheck, ShieldX, Trash2 } from "lucide-react"
 import useSWR from "swr"
 import { toast } from "sonner"
 
@@ -18,6 +18,8 @@ import {
   TableShell,
   TableSkeleton,
 } from "@/components/access-control/shared"
+import { LocalImageUpload } from "@/components/access-control/local-image-upload"
+import { RowActions, defaultActionIcons } from "@/components/access-control/row-actions"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -48,7 +50,7 @@ type Option = {
 type Field = {
   name: string
   label: string
-  type?: "text" | "email" | "number" | "date" | "datetime-local" | "textarea" | "select"
+  type?: "text" | "email" | "number" | "date" | "datetime-local" | "textarea" | "select" | "image"
   section?: string
   placeholder?: string
   options?: Option[]
@@ -81,6 +83,12 @@ type CrudPageProps = {
   statusOptions?: Option[]
   typeOptions?: Option[]
   methodOptions?: Option[]
+  methodFilterLabel?: string
+  showDateFilters?: boolean
+  allowCreate?: boolean
+  allowEdit?: boolean
+  allowDelete?: boolean
+  bulkDeleteResource?: string
 }
 
 function getValue(record: RecordValue, path: string): unknown {
@@ -241,6 +249,12 @@ export function CrudPage({
   statusOptions,
   typeOptions,
   methodOptions,
+  methodFilterLabel = "All methods",
+  showDateFilters = false,
+  allowCreate = true,
+  allowEdit = true,
+  allowDelete = true,
+  bulkDeleteResource: bulkDeleteResourceOverride,
 }: CrudPageProps) {
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(10)
@@ -248,6 +262,8 @@ export function CrudPage({
   const [status, setStatus] = useState("")
   const [type, setType] = useState("")
   const [method, setMethod] = useState("")
+  const [period, setPeriod] = useState("")
+  const [customDate, setCustomDate] = useState("")
   const [open, setOpen] = useState(false)
   const [detailsOpen, setDetailsOpen] = useState(false)
   const [editingRecord, setEditingRecord] = useState<RecordValue | null>(null)
@@ -269,14 +285,16 @@ export function CrudPage({
     if (status) params.set("status", status)
     if (type) params.set("type", type)
     if (method) params.set("method", method)
+    if (showDateFilters && period) params.set("period", period)
+    if (showDateFilters && period === "custom" && customDate) params.set("customDate", customDate)
     return `${endpoint}?${params.toString()}`
-  }, [endpoint, limit, method, page, search, status, type])
+  }, [customDate, endpoint, limit, method, page, period, search, showDateFilters, status, type])
 
   const { data, mutate, isLoading } = useSWR<RecordValue>(query, fetcher)
   const records = (data?.[dataKey] as RecordValue[] | undefined) ?? []
   const pagination = data?.pagination as { page: number; pages: number; total: number } | undefined
   const detailsColumns = detailFields ?? columns
-  const bulkDeleteResource = endpoint.split("/").filter(Boolean).pop() || dataKey
+  const bulkDeleteResource = bulkDeleteResourceOverride || endpoint.split("/").filter(Boolean).pop() || dataKey
   const visibleRecordIds = records.map((record) => String(record.id)).filter(Boolean)
   const allVisibleSelected = visibleRecordIds.length > 0 && visibleRecordIds.every((id) => selectedIds.includes(id))
 
@@ -465,6 +483,17 @@ export function CrudPage({
       return <Textarea value={String(value)} onChange={(event) => commonProps.onChange(event.target.value)} placeholder={field.placeholder} />
     }
 
+    if (field.type === "image") {
+      return (
+        <LocalImageUpload
+          label={field.label}
+          hint="Upload JPG, PNG, or WEBP. Max 2MB."
+          value={String(value)}
+          onChange={commonProps.onChange}
+        />
+      )
+    }
+
     return (
       <Input
         type={field.type ?? "text"}
@@ -493,12 +522,12 @@ export function CrudPage({
         breadcrumb={breadcrumb}
         title={title}
         description={description}
-        action={
+        action={allowCreate ? (
           <Button className="gap-2" onClick={openCreate}>
             <Plus className="h-4 w-4" />
             New {recordName}
           </Button>
-        }
+        ) : undefined}
       />
 
       <AccessToolbar>
@@ -541,9 +570,41 @@ export function CrudPage({
                   setMethod(value)
                   setPage(1)
                 }}
-                options={[{ label: "All methods", value: "" }, ...methodOptions]}
+                options={[{ label: methodFilterLabel, value: "" }, ...methodOptions]}
                 className="w-auto min-w-44"
               />
+            ) : null}
+            {showDateFilters ? (
+              <>
+                <SelectField
+                  value={period}
+                  onChange={(value) => {
+                    setPeriod(value)
+                    setPage(1)
+                  }}
+                  options={[
+                    { label: "All dates", value: "" },
+                    { label: "Today", value: "today" },
+                    { label: "Yesterday", value: "yesterday" },
+                    { label: "This week", value: "week" },
+                    { label: "This month", value: "month" },
+                    { label: "This year", value: "year" },
+                    { label: "Custom date", value: "custom" },
+                  ]}
+                  className="w-auto min-w-40"
+                />
+                {period === "custom" ? (
+                  <Input
+                    type="date"
+                    value={customDate}
+                    onChange={(event) => {
+                      setCustomDate(event.target.value)
+                      setPage(1)
+                    }}
+                    className="h-10 w-auto min-w-40"
+                  />
+                ) : null}
+              </>
             ) : null}
             <span className="text-sm text-muted-foreground">Per page</span>
             <SelectField
@@ -558,7 +619,7 @@ export function CrudPage({
           </div>
         </div>
         <div className="flex flex-wrap items-center justify-end gap-2">
-          {selectedIds.length > 0 ? (
+          {allowDelete && selectedIds.length > 0 ? (
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button type="button" variant="destructive" size="sm" className="gap-2" disabled={bulkDeleting}>
@@ -588,19 +649,21 @@ export function CrudPage({
 
       <AccessCard title={`${title} Directory`} description={`Manage ${title.toLowerCase()} records.`}>
         <TableShell>
-          <table className="min-w-full text-sm">
+          <table className="w-full min-w-[760px] text-sm">
             <thead className="bg-muted/45 text-left text-xs uppercase tracking-[0.18em] text-muted-foreground">
               <tr>
-                <th className="w-12 px-4 py-3">
-                  <input
-                    type="checkbox"
-                    aria-label={`Select all ${title.toLowerCase()} on this page`}
-                    checked={allVisibleSelected}
-                    disabled={records.length === 0}
-                    onChange={(event) => toggleAllVisible(event.target.checked)}
-                    className="h-4 w-4 rounded border-border"
-                  />
-                </th>
+                {allowDelete ? (
+                  <th className="w-12 px-4 py-3">
+                    <input
+                      type="checkbox"
+                      aria-label={`Select all ${title.toLowerCase()} on this page`}
+                      checked={allVisibleSelected}
+                      disabled={records.length === 0}
+                      onChange={(event) => toggleAllVisible(event.target.checked)}
+                      className="h-4 w-4 rounded border-border"
+                    />
+                  </th>
+                ) : null}
                 {columns.map((column) => (
                   <th key={column.key} className="px-4 py-3">{column.label}</th>
                 ))}
@@ -610,50 +673,44 @@ export function CrudPage({
             <tbody>
               {records.map((record) => (
                 <tr key={String(record.id)} className="border-t border-border/70">
-                  <td className="px-4 py-3 align-top">
-                    <input
-                      type="checkbox"
-                      aria-label={`Select ${recordName} ${String(getValue(record, columns[0]?.key || "id") ?? record.id)}`}
-                      checked={selectedIds.includes(String(record.id))}
-                      onChange={(event) => toggleRecordSelection(String(record.id), event.target.checked)}
-                      className="h-4 w-4 rounded border-border"
-                    />
-                  </td>
+                  {allowDelete ? (
+                    <td className="px-4 py-3 align-top">
+                      <input
+                        type="checkbox"
+                        aria-label={`Select ${recordName} ${String(getValue(record, columns[0]?.key || "id") ?? record.id)}`}
+                        checked={selectedIds.includes(String(record.id))}
+                        onChange={(event) => toggleRecordSelection(String(record.id), event.target.checked)}
+                        className="h-4 w-4 rounded border-border"
+                      />
+                    </td>
+                  ) : null}
                   {columns.map((column) => (
                     <td key={column.key} className="px-4 py-3 align-top">
                       {column.render ? column.render(record) : formatCell(getValue(record, column.key))}
                     </td>
                   ))}
                   <td className="px-4 py-3">
-                    <div className="flex justify-end gap-2">
-                      <Button variant="outline" size="sm" className="gap-2" onClick={() => openDetails(record)}>
-                        <Eye className="h-3.5 w-3.5" />
-                        View
-                      </Button>
-                      <Button variant="outline" size="sm" className="gap-2" onClick={() => openEdit(record)}>
-                        <Pencil className="h-3.5 w-3.5" />
-                        Edit
-                      </Button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="destructive" size="sm" className="gap-2">
-                            <Trash2 className="h-3.5 w-3.5" />
-                            Delete
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Delete {recordName}</AlertDialogTitle>
-                            <AlertDialogDescription>This action permanently removes this {recordName} record.</AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction className="bg-destructive text-white hover:bg-destructive/90" onClick={() => handleDelete(record)}>
-                              Delete
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
+                    <div className="flex justify-end">
+                      <RowActions
+                        label={`Actions for ${recordName}`}
+                        actions={[
+                          { label: "View", icon: defaultActionIcons.view, onClick: () => openDetails(record) },
+                          ...(allowEdit ? [{ label: "Edit", icon: defaultActionIcons.edit, onClick: () => openEdit(record) }] : []),
+                          ...(allowDelete ? [
+                          {
+                            label: "Delete",
+                            icon: defaultActionIcons.delete,
+                            destructive: true,
+                            separatorBefore: true,
+                            onClick: () => handleDelete(record),
+                            confirm: {
+                              title: `Delete ${recordName}`,
+                              description: `This action permanently removes this ${recordName} record.`,
+                            },
+                          },
+                          ] : []),
+                        ]}
+                      />
                     </div>
                   </td>
                 </tr>
@@ -665,7 +722,7 @@ export function CrudPage({
               <TableEmpty title={`No ${title.toLowerCase()} found`} description="Create a record or adjust your filters." />
             </div>
           ) : null}
-          {isLoading ? <TableSkeleton columns={columns.length + 2} rows={5} /> : null}
+          {isLoading ? <TableSkeleton columns={columns.length + (allowDelete ? 2 : 1)} rows={5} /> : null}
           {pagination ? (
             <PaginationControls
               page={pagination.page}
@@ -689,7 +746,7 @@ export function CrudPage({
                 <div className="grid gap-4 md:grid-cols-2">
                   {section.fields.map((field) => (
                     <div key={field.name} className={field.className}>
-                      <FieldBlock label={field.label}>{renderField(field)}</FieldBlock>
+                      {field.type === "image" ? renderField(field) : <FieldBlock label={field.label}>{renderField(field)}</FieldBlock>}
                     </div>
                   ))}
                 </div>

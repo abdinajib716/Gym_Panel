@@ -16,9 +16,9 @@ import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/comp
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
-const SIDEBAR_WIDTH = "17rem"
+const SIDEBAR_WIDTH = "15.75rem"
 const SIDEBAR_WIDTH_MOBILE = "18rem"
-const SIDEBAR_WIDTH_ICON = "4rem"
+const SIDEBAR_WIDTH_ICON = "4.25rem"
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
 type SidebarContextProps = {
@@ -59,6 +59,16 @@ function SidebarProvider({
   const isMobile = useIsMobile()
   const [openMobile, setOpenMobile] = React.useState(false)
   const [internalOpen, setInternalOpen] = React.useState(defaultOpen)
+
+  React.useEffect(() => {
+    const cookieValue = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith(`${SIDEBAR_COOKIE_NAME}=`))
+      ?.split("=")[1]
+
+    if (cookieValue === "true") setInternalOpen(true)
+    if (cookieValue === "false") setInternalOpen(false)
+  }, [])
 
   const open = openProp ?? internalOpen
 
@@ -184,7 +194,7 @@ function Sidebar({
     >
       <div
         className={cn(
-          "relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear",
+          "relative w-(--sidebar-width) bg-transparent transition-[width] duration-150 ease-out",
           "group-data-[collapsible=offcanvas]:w-0",
           variant === "floating" || variant === "inset"
             ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+1rem)]"
@@ -193,7 +203,7 @@ function Sidebar({
       />
       <div
         className={cn(
-          "fixed inset-y-0 z-30 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex",
+          "fixed inset-y-0 z-30 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-150 ease-out md:flex",
           side === "left"
             ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
             : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
@@ -206,7 +216,7 @@ function Sidebar({
       >
         <div
           className={cn(
-            "bg-sidebar flex h-full w-full flex-col overflow-hidden border border-sidebar-border/70",
+            "bg-sidebar flex h-full w-full flex-col overflow-hidden border-sidebar-border/70",
             variant === "floating" || variant === "inset"
               ? "rounded-[1.75rem] shadow-[0_30px_80px_-40px_rgba(15,23,42,0.45)]"
               : "border-r",
@@ -310,7 +320,7 @@ function SidebarGroupLabel({
   return (
     <Comp
       className={cn(
-        "text-sidebar-foreground/65 px-3 text-[11px] font-medium uppercase tracking-[0.18em] group-data-[collapsible=icon]:opacity-0",
+        "text-sidebar-foreground/65 px-3 text-[11px] font-medium uppercase tracking-[0.18em] group-data-[collapsible=icon]:hidden",
         className,
       )}
       {...props}
@@ -331,7 +341,7 @@ function SidebarMenuItem({ className, ...props }: React.ComponentProps<"li">) {
 }
 
 const sidebarMenuButtonVariants = cva(
-  "peer/menu-button flex w-full items-center gap-3 overflow-hidden rounded-2xl px-3 py-2 text-left text-sm outline-none transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring/50 data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground group-data-[collapsible=icon]:size-11 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
+  "peer/menu-button flex w-full items-center gap-3 overflow-hidden rounded-2xl px-3 py-2 text-left text-sm outline-none transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring/50 data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground group-data-[collapsible=icon]:size-11 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:[&>span]:hidden [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
   {
     variants: {
       size: {

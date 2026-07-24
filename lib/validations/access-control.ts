@@ -85,7 +85,7 @@ const userBaseFields = {
   password: z.string().min(8, "Password must be at least 8 characters").optional().or(z.literal("")),
   confirmPassword: z.string().optional().or(z.literal("")),
   displayName: z.string().trim().optional(),
-  roleIds: z.array(z.string().min(1)).min(1, "Select at least one role"),
+  roleIds: z.array(z.string().min(1)).min(1, "Select one role").max(1, "Select only one role"),
 }
 
 export const userBaseSchema = z.object(userBaseFields)
@@ -97,7 +97,7 @@ export const updateUserSchema = z.object({
   lastName: z.string().trim().min(1, "Last name is required").optional(),
   username: z.string().trim().min(1, "Username is required").optional(),
   email: emailSchema.optional(),
-  roleIds: z.array(z.string().min(1)).optional(),
+  roleIds: z.array(z.string().min(1)).max(1, "Select only one role").optional(),
 }).partial().superRefine(validatePasswordMatch)
 
 export const roleSchema = z.object({

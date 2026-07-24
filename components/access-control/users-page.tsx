@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Eye, EyeOff, Pencil, Plus, Trash2, Users } from "lucide-react"
+import { Eye, EyeOff, Plus, Users } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
@@ -20,17 +20,7 @@ import {
   TableShell,
 } from "@/components/access-control/shared"
 import { LocalImageUpload } from "@/components/access-control/local-image-upload"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+import { RowActions, defaultActionIcons } from "@/components/access-control/row-actions"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -78,12 +68,10 @@ export function AccessControlUsersPage() {
 
   const selectedRoleIds = form.watch("roleIds") ?? []
 
-  const selectedRolesText = useMemo(() => {
-    if (!selectedRoleIds?.length) return "No roles assigned yet"
-    return roles
-      .filter((role) => selectedRoleIds.includes(role.id))
-      .map((role) => role.name)
-      .join(", ")
+  const selectedRoleText = useMemo(() => {
+    const selectedRoleId = selectedRoleIds[0]
+    if (!selectedRoleId) return "No role assigned yet"
+    return roles.find((role) => role.id === selectedRoleId)?.name ?? "Selected role"
   }, [roles, selectedRoleIds])
 
   const openCreate = () => {
@@ -107,15 +95,13 @@ export function AccessControlUsersPage() {
       password: "",
       confirmPassword: "",
       displayName: user.displayName ?? "",
-      roleIds: user.roles.map((role) => role.id),
+      roleIds: user.roles.slice(0, 1).map((role) => role.id),
     })
     setOpen(true)
   }
 
-  const toggleRole = (roleId: string) => {
-    const current = form.getValues("roleIds") ?? []
-    const next = current.includes(roleId) ? current.filter((entry) => entry !== roleId) : [...current, roleId]
-    form.setValue("roleIds", next, { shouldValidate: true })
+  const selectRole = (roleId: string) => {
+    form.setValue("roleIds", [roleId], { shouldValidate: true })
   }
 
   const onSubmit = form.handleSubmit(async (values) => {
@@ -203,7 +189,7 @@ export function AccessControlUsersPage() {
         description="Search, edit, and manage accounts."
       >
         <TableShell>
-          <table className="min-w-full text-sm">
+          <table className="w-full min-w-[860px] text-sm">
             <thead className="bg-muted/45 text-left text-xs uppercase tracking-[0.18em] text-muted-foreground">
               <tr>
                 <th className="px-4 py-3"><input type="checkbox" aria-label="Select all users" /></th>
@@ -244,33 +230,24 @@ export function AccessControlUsersPage() {
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex justify-end gap-2">
-                      <Button variant="outline" size="sm" className="gap-2" onClick={() => openEdit(user)}>
-                        <Pencil className="h-3.5 w-3.5" />
-                        Edit
-                      </Button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="destructive" size="sm" className="gap-2">
-                            <Trash2 className="h-3.5 w-3.5" />
-                            Delete
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Delete user</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              This will permanently remove {user.firstName} {user.lastName} from the access registry.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction className="bg-destructive text-white hover:bg-destructive/90" onClick={() => handleDelete(user)}>
-                              Delete
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
+                    <div className="flex justify-end">
+                      <RowActions
+                        label={`Actions for ${user.firstName} ${user.lastName}`}
+                        actions={[
+                          { label: "Edit", icon: defaultActionIcons.edit, onClick: () => openEdit(user) },
+                          {
+                            label: "Delete",
+                            icon: defaultActionIcons.delete,
+                            destructive: true,
+                            separatorBefore: true,
+                            onClick: () => handleDelete(user),
+                            confirm: {
+                              title: "Delete user",
+                              description: `This will permanently remove ${user.firstName} ${user.lastName} from the access registry.`,
+                            },
+                          },
+                        ]}
+                      />
                     </div>
                   </td>
                 </tr>
@@ -374,7 +351,7 @@ export function AccessControlUsersPage() {
               </div>
             </AccessCard>
 
-            <AccessCard title="Permissions & Display" description="Assign one or more roles.">
+            <AccessCard title="Permissions & Display" description="Assign exactly one role to this user.">
               <div className="space-y-5">
                 <div className="grid gap-3 sm:grid-cols-2">
                   {roles.map((role) => {
@@ -384,7 +361,7 @@ export function AccessControlUsersPage() {
                       <button
                         key={role.id}
                         type="button"
-                        onClick={() => toggleRole(role.id)}
+                        onClick={() => selectRole(role.id)}
                         className={`rounded-2xl border px-4 py-3 text-left transition ${
                           selected
                             ? "border-[#2f8fe8]/25 bg-[#2f8fe8]/10 shadow-[0_16px_30px_-22px_rgba(47,143,232,0.9)]"
@@ -397,9 +374,10 @@ export function AccessControlUsersPage() {
                             <p className="mt-1 text-xs text-muted-foreground">{role.permissions.length} linked permissions</p>
                           </div>
                           <input
-                            type="checkbox"
+                            type="radio"
                             checked={selected}
                             readOnly
+                            name="access-user-role"
                             className="mt-1 h-4 w-4"
                           />
                         </div>
@@ -411,7 +389,7 @@ export function AccessControlUsersPage() {
                   <p className="text-xs font-medium text-destructive">{form.formState.errors.roleIds.message}</p>
                 ) : null}
                 <div className="rounded-2xl border border-dashed border-border/70 bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
-                  Selected roles: <span className="font-medium text-foreground">{selectedRolesText}</span>
+                  Selected role: <span className="font-medium text-foreground">{selectedRoleText}</span>
                 </div>
               </div>
             </AccessCard>

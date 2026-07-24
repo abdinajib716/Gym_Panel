@@ -190,7 +190,7 @@ export function ReportsPage() {
 
       <AccessCard title={reportOptions.find((item) => item.value === report)?.label ?? "Report"} description="Results are protected by reports.view. CSV and PDF exports use reports.export.">
         <TableShell>
-          <table className="min-w-full text-sm">
+          <table className="w-full min-w-[760px] text-sm">
             <thead className="bg-muted/45 text-left text-xs uppercase tracking-[0.18em] text-muted-foreground">
               <tr>
                 {columns.map((column) => (

@@ -128,7 +128,7 @@ export function AccessControlActivityLogsPage() {
 
       <AccessCard title="Audit Trail" description="A searchable history of system activity.">
         <TableShell>
-          <table className="min-w-full text-sm">
+          <table className="w-full min-w-[860px] text-sm">
             <thead className="bg-muted/45 text-left text-xs uppercase tracking-[0.18em] text-muted-foreground">
               <tr>
                 <th className="px-4 py-3"><input type="checkbox" aria-label="Select all logs" /></th>
