@@ -1,0 +1,212 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* Navy-and-lime dashboard theme.  The tokens keep every existing component and
+ * interaction intact while giving the admin area the visual language in the
+ * supplied reference. */
+:root {
+  --brand-navy: #064f70;
+  --brand-navy-soft: #e1f0f5;
+  --brand-lime: #9bd122;
+  --brand-red: #c9343a;
+  --success: oklch(0.77 0.19 126);
+  --success-foreground: oklch(0.25 0.055 235);
+  --font-dm-sans: "Inter", "Segoe UI", Arial, sans-serif;
+  --font-space-grotesk: "Inter", "Segoe UI", Arial, sans-serif;
+  --background: oklch(0.984 0.006 95);
+  --foreground: oklch(0.255 0.032 246);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.255 0.032 246);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.255 0.032 246);
+  --primary: oklch(0.725 0.19 128);
+  --primary-foreground: oklch(0.22 0.045 236);
+  --secondary: oklch(0.955 0.035 126);
+  --secondary-foreground: oklch(0.24 0.045 236);
+  --muted: oklch(0.965 0.008 95);
+  --muted-foreground: oklch(0.49 0.025 248);
+  --accent: oklch(0.93 0.07 128);
+  --accent-foreground: oklch(0.22 0.045 236);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.985 0 0);
+  --border: oklch(0.9 0.012 95);
+  --input: oklch(0.9 0.012 95);
+  --ring: oklch(0.725 0.19 128);
+  --chart-1: oklch(0.42 0.09 230);
+  --chart-2: oklch(0.725 0.19 128);
+  --chart-3: oklch(0.55 0.13 220);
+  --chart-4: oklch(0.81 0.16 112);
+  --chart-5: oklch(0.67 0.12 88);
+  --radius: 0.75rem;
+  --sidebar: oklch(0.28 0.075 238);
+  --sidebar-foreground: oklch(0.965 0.012 100);
+  --sidebar-primary: oklch(0.725 0.19 128);
+  --sidebar-primary-foreground: oklch(0.21 0.04 238);
+  --sidebar-accent: oklch(0.34 0.08 238);
+  --sidebar-accent-foreground: oklch(0.99 0.006 100);
+  --sidebar-border: oklch(0.39 0.07 235);
+  --sidebar-ring: oklch(0.725 0.19 128);
+}
+
+.dark {
+  --brand-navy: #60c5e9;
+  --brand-navy-soft: #12384b;
+  --brand-lime: #b8ee42;
+  --brand-red: #ff737a;
+  --success: oklch(0.83 0.19 125);
+  --success-foreground: oklch(0.22 0.03 236);
+  --background: oklch(0.19 0.025 240);
+  --foreground: oklch(0.96 0.01 105);
+  --card: oklch(0.235 0.03 239);
+  --card-foreground: oklch(0.96 0.01 105);
+  --popover: oklch(0.255 0.035 239);
+  --popover-foreground: oklch(0.96 0.01 105);
+  --primary: oklch(0.84 0.19 126);
+  --primary-foreground: oklch(0.22 0.04 238);
+  --secondary: oklch(0.31 0.05 237);
+  --secondary-foreground: oklch(0.96 0.01 105);
+  --muted: oklch(0.285 0.028 239);
+  --muted-foreground: oklch(0.75 0.02 225);
+  --accent: oklch(0.39 0.09 126);
+  --accent-foreground: oklch(0.96 0.01 105);
+  --destructive: oklch(0.69 0.2 25);
+  --destructive-foreground: oklch(0.22 0.03 238);
+  --border: oklch(0.37 0.032 238);
+  --input: oklch(0.32 0.03 239);
+  --ring: oklch(0.84 0.19 126);
+  --chart-1: oklch(0.72 0.12 221);
+  --chart-2: oklch(0.84 0.19 126);
+  --chart-3: oklch(0.66 0.13 220);
+  --chart-4: oklch(0.8 0.16 112);
+  --chart-5: oklch(0.71 0.13 85);
+  --sidebar: oklch(0.2 0.05 239);
+  --sidebar-foreground: oklch(0.95 0.012 105);
+  --sidebar-primary: oklch(0.84 0.19 126);
+  --sidebar-primary-foreground: oklch(0.2 0.04 238);
+  --sidebar-accent: oklch(0.29 0.06 239);
+  --sidebar-accent-foreground: oklch(0.98 0.01 105);
+  --sidebar-border: oklch(0.34 0.045 239);
+  --sidebar-ring: oklch(0.84 0.19 126);
+}
+
+@theme inline {
+  --font-sans: var(--font-dm-sans);
+  --font-mono: var(--font-space-grotesk);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * { @apply border-border outline-ring/50; }
+  body { @apply bg-background text-foreground antialiased; font-feature-settings: "cv02", "cv03", "cv04", "cv11"; }
+  button:not(:disabled), [role="button"]:not(:disabled) { cursor: pointer; }
+  ::selection { @apply bg-primary text-primary-foreground; }
+}
+
+@layer utilities {
+  .container { @apply mx-auto w-full max-w-[1400px] px-4 sm:px-6; }
+  .page-container { @apply mx-auto w-full max-w-[1400px]; }
+  .data-table-row { @apply border-b border-border/70 transition-colors hover:bg-muted/50; }
+}
+
+/* A calmer, ledger-like surface: white panels sit lightly over the warm page
+ * background, while the navigation retains the deep navy from the reference. */
+[data-slot="card"] { box-shadow: 0 6px 20px rgb(19 59 82 / 0.055); }
+
+/* Dashboard shell details based on the supplied navy-and-lime reference. */
+.gym-sidebar [data-slot="sidebar-header"] { padding: 1rem 0.8rem 0.85rem; }
+.gym-sidebar [data-slot="sidebar-content"] { padding: 0.35rem 0.45rem 1rem; }
+.gym-sidebar [data-slot="sidebar-group"] { padding: 0.15rem 0; }
+.gym-sidebar [data-slot="sidebar-menu-button"] { border-radius: 0.55rem; font-weight: 600; }
+.gym-sidebar [data-slot="sidebar-menu-button"][data-active="true"] {
+  background: rgb(255 255 255 / 0.12);
+  box-shadow: inset 3px 0 0 var(--primary);
+}
+.gym-sidebar [data-slot="sidebar-menu-button"]:hover { background: rgb(255 255 255 / 0.08); }
+.gym-sidebar [data-slot="sidebar-menu-button"] svg { opacity: 0.88; }
+.gym-header { box-shadow: 0 1px 0 rgb(6 77 112 / 0.06); }
+.gym-shell { background: linear-gradient(135deg, #f8faf8 0%, #f4f7f6 100%); }
+.gym-dashboard .gym-metric-card { min-height: 9.25rem; border-color: rgb(6 77 112 / 0.08); }
+.gym-dashboard .gym-metric-navy { box-shadow: 0 14px 28px rgb(6 79 112 / 0.20); }
+.gym-dashboard .gym-metric-lime { box-shadow: 0 14px 28px rgb(155 209 34 / 0.20); }
+.gym-dashboard [data-slot="card"] { border-color: rgb(6 77 112 / 0.09); }
+.gym-dashboard [data-slot="card-header"] { background: linear-gradient(180deg, rgb(248 251 250 / 0.9), transparent); }
+.dashboard-intro { box-shadow: 0 8px 24px rgb(6 79 112 / 0.045); }
+.dark .gym-shell { background: linear-gradient(135deg, oklch(0.19 0.025 240) 0%, oklch(0.16 0.025 240) 100%); }
+.dark .gym-dashboard [data-slot="card-header"] { background: linear-gradient(180deg, rgb(255 255 255 / 0.025), transparent); }
+.gym-form-section { border-color: rgb(6 79 112 / 0.12); }
+.dark .gym-form-section { border-color: var(--border); }
+.members-directory [data-slot="card-header"] { padding-block: 1.1rem; }
+.members-table thead { background: color-mix(in oklab, var(--brand-navy-soft) 62%, var(--card)); }
+.members-table th { color: var(--muted-foreground); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; }
+.members-table tbody tr { transition: background-color 160ms ease; }
+.members-table tbody tr:hover { background: color-mix(in oklab, var(--brand-navy-soft) 28%, transparent); }
+.dark .members-table thead { background: color-mix(in oklab, var(--sidebar) 55%, var(--card)); }
+.dark .members-table tbody tr:hover { background: rgb(255 255 255 / 0.035); }
+.auth-panel { box-shadow: 0 20px 45px rgb(6 79 112 / 0.10); }
+.dark .auth-panel { box-shadow: 0 20px 45px rgb(0 0 0 / 0.24); }
+
+@keyframes landing-reveal {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.landing-reveal { animation: landing-reveal 700ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.landing-reveal-1 { animation-delay: 50ms; }
+.landing-reveal-2 { animation-delay: 120ms; }
+.landing-reveal-3 { animation-delay: 190ms; }
+.landing-reveal-4 { animation-delay: 260ms; }
+.landing-reveal-5 { animation-delay: 340ms; }
+.landing-section { animation: landing-reveal 700ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.landing-card { transition: transform 220ms ease, box-shadow 220ms ease; }
+.landing-card:hover { transform: translateY(-5px); box-shadow: 0 18px 34px rgb(0 0 0 / 0.10); }
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-reveal, .landing-section { animation: none; }
+  .landing-card { transition: none; }
+  .landing-card:hover { transform: none; }
+}
+
+.dark input:-webkit-autofill,
+.dark input:-webkit-autofill:hover,
+.dark input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--foreground);
+  -webkit-box-shadow: 0 0 0 1000px oklch(0.205 0 0) inset;
+  caret-color: var(--foreground);
+}
