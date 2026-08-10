@@ -900,7 +900,7 @@ export function StatusPill({ value }: { value: string }) {
   const isAlert = ["EXPIRED", "FAILED", "PENDING", "SUSPENDED", "CANCELLED"].some((status) => normalized.includes(status))
   const isPositive = ["ACTIVE", "PAID", "PRESENT", "COMPLETED", "PUBLISHED"].some((status) => normalized.includes(status))
   return (
-    <Pill variant="secondary" className={isAlert ? "bg-destructive/10 text-destructive" : isPositive ? "bg-primary/20 text-[var(--brand-navy)] dark:text-primary" : "bg-[var(--brand-navy-soft)] text-[var(--brand-navy)]"}>
+    <Pill variant="secondary" className={isAlert ? "status-badge status-badge-danger" : isPositive ? "status-badge status-badge-success" : "status-badge status-badge-info"}>
       {value.replaceAll("_", " ")}
     </Pill>
   )

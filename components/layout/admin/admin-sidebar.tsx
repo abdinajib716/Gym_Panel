@@ -85,9 +85,7 @@ function SidebarSection({ group }: { group: NavGroup }) {
         className={!open ? "hidden group-data-[collapsible=icon]:block" : undefined}
       >
         <SidebarMenu className="gap-0.5">
-          {group.children.map((item) => (
-            <SidebarLink key={item.href} item={item} />
-          ))}
+          {group.children.map((item) => <SidebarLink key={item.href} item={item} />)}
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>

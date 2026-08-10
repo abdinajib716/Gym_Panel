@@ -140,6 +140,11 @@ function PersonCell({ record, imageKey = "profileImage" }: { record: RecordValue
   )
 }
 
+function MemberCell({ record }: { record: RecordValue }) {
+  const member = nested(record, "member")
+  return <PersonCell record={member && typeof member === "object" ? member as RecordValue : { fullName: "-" }} />
+}
+
 function ProductImageCell({ record }: { record: RecordValue }) {
   const name = String(record.name ?? "Product")
   const image = record.image as string | null | undefined
@@ -285,7 +290,7 @@ export function SubscriptionsPage() {
         { name: "paymentStatus", label: "Payment status", type: "select", options: paymentStatusOptions },
       ]}
       columns={[
-        { key: "member.fullName", label: "Member" },
+        { key: "member.fullName", label: "Member", render: (record) => <MemberCell record={record} /> },
         { key: "plan.name", label: "Plan" },
         { key: "startDate", label: "Start", render: (record) => shortDate(record.startDate) },
         { key: "expiryDate", label: "Expiry", render: (record) => shortDate(record.expiryDate) },
@@ -335,7 +340,7 @@ export function PaymentsPage() {
         { name: "notes", label: "Notes", type: "textarea", className: "md:col-span-2" },
       ]}
       columns={[
-        { key: "member.fullName", label: "Member" },
+        { key: "member.fullName", label: "Member", render: (record) => <MemberCell record={record} /> },
         { key: "plan.name", label: "Plan" },
         { key: "amount", label: "Amount", render: (record) => currency(record.amount) },
         { key: "method", label: "Method", render: (record) => <StatusPill value={String(record.method)} /> },
@@ -344,7 +349,7 @@ export function PaymentsPage() {
         { key: "failedReason", label: "Waafi Message", render: (record) => compactText(record.failedReason ?? nested(record, "rawResponse.responseMessage")) },
       ]}
       detailFields={[
-        { key: "member.fullName", label: "Member" },
+        { key: "member.fullName", label: "Member", render: (record) => <MemberCell record={record} /> },
         { key: "plan.name", label: "Plan" },
         { key: "amount", label: "Amount", render: (record) => currency(record.amount) },
         { key: "currency", label: "Currency" },
@@ -389,7 +394,7 @@ export function AttendancePage() {
         { name: "status", label: "Status", type: "select", options: attendanceStatusOptions },
       ]}
       columns={[
-        { key: "member.fullName", label: "Member" },
+        { key: "member.fullName", label: "Member", render: (record) => <MemberCell record={record} /> },
         { key: "checkInDate", label: "Check-in", render: (record) => shortDate(record.checkInDate) },
         { key: "method", label: "Method", render: (record) => <StatusPill value={String(record.method)} /> },
         { key: "status", label: "Status", render: (record) => <StatusPill value={String(record.status)} /> },
@@ -429,7 +434,7 @@ export function NotificationsPage() {
         { key: "title", label: "Title" },
         { key: "type", label: "Type", render: (record) => <StatusPill value={String(record.type)} /> },
         { key: "target", label: "Target", render: (record) => <StatusPill value={String(record.target)} /> },
-        { key: "member.fullName", label: "Member" },
+        { key: "member.fullName", label: "Member", render: (record) => <MemberCell record={record} /> },
         { key: "readStatus", label: "Read", render: (record) => <StatusPill value={String(record.readStatus)} /> },
         { key: "createdAt", label: "Created", render: (record) => shortDate(record.createdAt) },
       ]}

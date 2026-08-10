@@ -47,7 +47,7 @@ export function Logo({ variant = "default", className, href = "/", preferLoginLo
 	}, [data])
 
 	const branding = data?.branding ?? storedBranding
-	const siteName = branding?.siteName || "Startap Admin"
+	const siteName = branding?.siteName || "Gym Master"
 	const rawLogoSrc = useMemo(
 		() => {
 			if (preferLoginLogo && branding?.loginPageLogo) {
@@ -55,12 +55,12 @@ export function Logo({ variant = "default", className, href = "/", preferLoginLo
 			}
 
 			return resolvedTheme === "dark"
-				? branding?.siteLogoFullDark || branding?.siteLogoFullLight
-				: branding?.siteLogoFullLight || branding?.siteLogoFullDark
+				? branding?.siteLogoFullDark || branding?.siteLogoFullLight || "/images/brand/gym-panel-logo-light.svg"
+				: branding?.siteLogoFullLight || branding?.siteLogoFullDark || "/images/brand/gym-panel-logo-dark.svg"
 		},
 		[branding, preferLoginLogo, resolvedTheme],
 	)
-	const rawIconSrc = branding?.siteIcon || branding?.siteLogoFullLight || branding?.siteLogoFullDark
+	const rawIconSrc = branding?.siteIcon || (resolvedTheme === "dark" ? "/images/brand/gym-panel-icon-light.svg" : "/images/brand/gym-panel-icon-dark.svg")
 	const logoSrc = rawLogoSrc && !failedImages[rawLogoSrc] ? rawLogoSrc : null
 	const iconSrc = rawIconSrc && !failedImages[rawIconSrc] ? rawIconSrc : null
 	const handleImageError = (src: string) => {

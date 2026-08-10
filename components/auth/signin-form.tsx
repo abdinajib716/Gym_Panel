@@ -144,8 +144,8 @@ export function SignInForm() {
       </CardHeader>
       <CardContent className="px-0 pb-0 pt-7">
         <form onSubmit={mode === "signin" ? handleSubmit : mode === "forgot" ? handleForgotPassword : handleResetPassword} className="space-y-4">
-          <label className="space-y-2">
-            <span className="text-sm font-medium">Email address</span>
+          <label className="block space-y-2">
+            <span className="block text-sm font-semibold text-foreground">Email address</span>
             <div className="relative">
               <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -165,8 +165,8 @@ export function SignInForm() {
           </label>
 
           {mode === "signin" ? (
-            <label className="space-y-2">
-              <span className="text-sm font-medium">Password</span>
+            <label className="block space-y-2">
+              <span className="block text-sm font-semibold text-foreground">Password</span>
               <div className="relative">
                 <LockKeyhole className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -197,21 +197,22 @@ export function SignInForm() {
 
           {mode === "reset" ? (
             <>
-              <label className="space-y-2">
-                <span className="text-sm font-medium">Reset Code</span>
+              <label className="block space-y-2">
+                <span className="block text-sm font-semibold text-foreground">Reset Code</span>
                 <Input
                   value={resetCode}
                   onChange={(event) => {
                     setResetCode(event.target.value.replace(/\D/g, "").slice(0, 6))
                     if (errors.resetCode) setErrors((current) => ({ ...current, resetCode: undefined }))
                   }}
+                  className="h-11 rounded-xl bg-background"
                   placeholder="6-digit code"
                   aria-invalid={Boolean(errors.resetCode)}
                 />
                 {errors.resetCode ? <p className="text-xs font-medium text-destructive">{errors.resetCode}</p> : null}
               </label>
-              <label className="space-y-2">
-                <span className="text-sm font-medium">New Password</span>
+              <label className="block space-y-2">
+                <span className="block text-sm font-semibold text-foreground">New Password</span>
                 <div className="relative">
                   <LockKeyhole className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
@@ -221,7 +222,7 @@ export function SignInForm() {
                       setNewPassword(event.target.value)
                       if (errors.newPassword) setErrors((current) => ({ ...current, newPassword: undefined }))
                     }}
-                    className="pl-9 pr-10"
+                    className="h-11 rounded-xl bg-background pl-9 pr-10"
                     placeholder="Minimum 8 characters"
                     aria-invalid={Boolean(errors.newPassword)}
                   />

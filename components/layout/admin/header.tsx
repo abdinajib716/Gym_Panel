@@ -42,7 +42,7 @@ export default function Header() {
 			<div className={cn("px-4 sm:px-6 lg:px-8", fullWidth ? "max-w-none" : "page-container")}>
 				<div className="flex h-16 items-center justify-between gap-4">
 					<div className="flex min-w-0 items-center gap-3">
-						<SidebarTrigger className="h-9 w-9 rounded-lg border-border bg-background shadow-none" />
+						<SidebarTrigger className="h-9 w-9 rounded-lg border-[var(--brand-navy)] bg-[var(--brand-navy)] text-white shadow-none hover:bg-[var(--brand-navy)]/90" />
 						<Logo href="/dashboard" variant="compact" className="md:hidden" />
 					</div>
 

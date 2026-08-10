@@ -26,14 +26,16 @@ export function LandingPage({ landing }: { landing: LandingContent }) {
   const renderSection = (key: string) => {
     if (!enabled.has(key)) return null
     if (key === "hero") return (
-      <section key={key} id="home" className="container space-y-10 py-16 sm:py-20">
-        <div className="grid place-items-center gap-y-4 text-center">
-          <p className="landing-reveal landing-reveal-1 rounded-full border bg-background px-3 py-1 text-sm font-medium text-muted-foreground">{page.heroEyebrow}</p>
-          <h1 className="landing-reveal landing-reveal-2 max-w-4xl text-5xl font-black leading-none tracking-tight sm:text-6xl">{page.heroTitle}</h1>
-          <p className="landing-reveal landing-reveal-3 max-w-prose text-lg text-muted-foreground">{page.heroDescription}</p>
+      <section key={key} id="home" className="landing-hero py-20 sm:py-24">
+        <div className="landing-hero-content container grid items-center gap-12 lg:min-h-[540px] lg:grid-cols-2 lg:gap-16">
+        <div className="grid justify-items-center gap-y-5 text-center lg:justify-items-start lg:text-left">
+          <p className="landing-reveal landing-reveal-1 rounded-full border px-3 py-1 text-sm font-medium">{page.heroEyebrow}</p>
+          <h1 className="landing-reveal landing-reveal-2 max-w-4xl text-5xl font-black leading-none tracking-tight sm:text-6xl lg:text-7xl">{page.heroTitle}</h1>
+          <p className="landing-reveal landing-reveal-3 max-w-prose text-lg">{page.heroDescription}</p>
           <div className="landing-reveal landing-reveal-4 flex gap-x-2"><Button asChild size="lg"><Link href="/signin">{page.heroPrimaryLabel}<ArrowRight className="size-4" /></Link></Button><Button asChild variant="secondary" size="lg"><Link href="#about">{page.heroSecondaryLabel}</Link></Button></div>
         </div>
-        <div className="landing-reveal landing-reveal-5 rounded-2xl border border-border/70 bg-[var(--brand-navy-soft)] p-3 shadow-sm md:p-6"><div className="relative aspect-video overflow-hidden rounded-xl bg-muted p-3 md:p-6"><Image src={heroImage} alt="GymMaster dashboard preview" fill sizes="(max-width: 768px) 100vw, 1400px" priority className={page.heroImage ? "object-cover object-top" : "object-cover object-top dark:hidden"} />{!page.heroImage ? <Image src="/images/misc/hero-dark.png" alt="GymMaster dashboard preview" fill sizes="(max-width: 768px) 100vw, 1400px" priority className="hidden object-cover object-top dark:block" /> : null}</div></div>
+        <div className="landing-reveal landing-reveal-5 w-full rounded-2xl border border-white/20 bg-white/10 p-3 shadow-sm md:p-6"><div className="relative aspect-video overflow-hidden rounded-xl bg-muted p-3 md:p-6"><Image src={heroImage} alt="GymMaster dashboard preview" fill sizes="(max-width: 1024px) 100vw, 50vw" priority className={page.heroImage ? "object-cover object-top" : "object-cover object-top dark:hidden"} />{!page.heroImage ? <Image src="/images/misc/hero-dark.png" alt="GymMaster dashboard preview" fill sizes="(max-width: 1024px) 100vw, 50vw" priority className="hidden object-cover object-top dark:block" /> : null}</div></div>
+        </div>
       </section>
     )
     if (key === "about") return (

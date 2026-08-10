@@ -244,7 +244,12 @@ export const sidebarNav: Array<NavItem | NavGroup> = [
   {
     title: "Gym Management",
     icon: UserCheck,
-    children: [...dashboardNav.slice(1), ...gymManagementNav],
+    children: [dashboardNav[1], dashboardNav[4], dashboardNav[5], dashboardNav[6], ...gymManagementNav],
+  },
+  {
+    title: "Memberships",
+    icon: CalendarCheck,
+    children: [dashboardNav[2], dashboardNav[3], dashboardNav[7]],
   },
   {
     title: "Store",
@@ -252,9 +257,14 @@ export const sidebarNav: Array<NavItem | NavGroup> = [
     children: storeNav,
   },
   {
-    title: "System",
+    title: "Website Management",
+    icon: PanelsTopLeft,
+    children: websiteNav,
+  },
+  {
+    title: "Settings",
     icon: ShieldEllipsis,
-    children: [...websiteNav, ...accessControlNav],
+    children: accessControlNav,
   },
 ]
 
