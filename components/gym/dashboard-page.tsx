@@ -57,10 +57,10 @@ function MetricCard({
   trend?: number[]
 }) {
   const toneClasses = {
-    primary: "bg-primary/20 text-[var(--brand-navy)]",
-    sky: "bg-[var(--brand-navy-soft)] text-[var(--brand-navy)]",
-    amber: "bg-accent text-[var(--brand-navy)]",
-    rose: "bg-destructive/10 text-destructive",
+    primary: "metric-icon-success",
+    sky: "metric-icon-info",
+    amber: "metric-icon-navy",
+    rose: "metric-icon-danger",
   }
 
   return (

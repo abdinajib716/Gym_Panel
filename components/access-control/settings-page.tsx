@@ -35,7 +35,7 @@ const defaultValues: SettingsFormValues = {
   siteFavicon: "",
   loginPageLogo: "",
   themeMode: "system",
-  primaryColor: "#2f8fe8",
+  primaryColor: "#2563eb",
   sidebarStyle: "default",
   layoutWidth: "boxed",
   headerStyle: "sticky",
@@ -438,10 +438,10 @@ export function AccessControlSettingsPage() {
                     name="primaryColor"
                     render={({ field }) => (
                       <div className="flex items-center gap-3">
-                        <Input {...field} placeholder="#2f8fe8" />
+                        <Input {...field} placeholder="#2563eb" />
                         <input
                           type="color"
-                          value={field.value || "#2f8fe8"}
+                          value={field.value || "#2563eb"}
                           onChange={field.onChange}
                           className="h-10 w-12 rounded-md border border-border bg-transparent p-1"
                         />

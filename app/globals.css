@@ -3,100 +3,73 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Navy-and-lime dashboard theme.  The tokens keep every existing component and
- * interaction intact while giving the admin area the visual language in the
- * supplied reference. */
+/* The UI uses only five core colours: blue, primary green, red, dark navy,
+ * and white. Light and dark modes are derived from this same palette. */
 :root {
-  --brand-navy: #064f70;
-  --brand-navy-soft: #e1f0f5;
-  --brand-lime: #9bd122;
+  --brand-blue: #005174;
+  --brand-green: #9bd122;
   --brand-red: #c9343a;
-  --success: oklch(0.77 0.19 126);
-  --success-foreground: oklch(0.25 0.055 235);
-  --status-success: #5d8f16;
-  --status-info: #064f70;
-  --status-danger: #c9343a;
+  --brand-navy: #063b57;
+  --brand-white: #ffffff;
+  --brand-navy-soft: color-mix(in srgb, var(--brand-navy) 8%, var(--brand-white));
+  --brand-lime: var(--brand-green);
+  --success: var(--brand-green);
+  --success-foreground: var(--brand-white);
+  --status-success: var(--brand-green);
+  --status-info: var(--brand-blue);
+  --status-danger: var(--brand-red);
   /* Inter is loaded once in app/layout.tsx. Change this token later to
    * update the font everywhere without touching individual components. */
   --font-dm-sans: var(--font-inter), "Segoe UI", Arial, sans-serif;
   --font-space-grotesk: var(--font-inter), "Segoe UI", Arial, sans-serif;
-  --background: oklch(0.984 0.006 95);
-  --foreground: oklch(0.255 0.032 246);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.255 0.032 246);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.255 0.032 246);
-  --primary: oklch(0.725 0.19 128);
-  --primary-foreground: oklch(0.22 0.045 236);
-  --secondary: oklch(0.955 0.035 126);
-  --secondary-foreground: oklch(0.24 0.045 236);
-  --muted: oklch(0.965 0.008 95);
-  --muted-foreground: oklch(0.49 0.025 248);
-  --accent: oklch(0.93 0.07 128);
-  --accent-foreground: oklch(0.22 0.045 236);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.9 0.012 95);
-  --input: oklch(0.9 0.012 95);
-  --ring: oklch(0.725 0.19 128);
-  --chart-1: oklch(0.42 0.09 230);
-  --chart-2: oklch(0.725 0.19 128);
-  --chart-3: oklch(0.55 0.13 220);
-  --chart-4: oklch(0.81 0.16 112);
-  --chart-5: oklch(0.67 0.12 88);
+  --background: var(--brand-white);
+  --foreground: var(--brand-navy);
+  --card: var(--brand-white);
+  --card-foreground: var(--brand-navy);
+  --popover: var(--brand-white);
+  --popover-foreground: var(--brand-navy);
+  --primary: var(--brand-green);
+  --primary-foreground: var(--brand-white);
+  --secondary: var(--brand-blue);
+  --secondary-foreground: var(--brand-white);
+  --muted: color-mix(in srgb, var(--brand-navy) 5%, var(--brand-white));
+  --muted-foreground: color-mix(in srgb, var(--brand-navy) 68%, var(--brand-white));
+  --accent: color-mix(in srgb, var(--brand-navy) 8%, var(--brand-white));
+  --accent-foreground: var(--brand-navy);
+  --destructive: var(--brand-red);
+  --destructive-foreground: var(--brand-white);
+  --border: color-mix(in srgb, var(--brand-navy) 15%, var(--brand-white));
+  --input: color-mix(in srgb, var(--brand-navy) 15%, var(--brand-white));
+  --ring: var(--brand-green);
+  --chart-1: var(--brand-blue);
+  --chart-2: var(--brand-green);
+  --chart-3: var(--brand-navy);
+  --chart-4: var(--brand-red);
+  --chart-5: var(--brand-blue);
   --radius: 0.75rem;
-  --sidebar: oklch(0.28 0.075 238);
-  --sidebar-foreground: oklch(0.965 0.012 100);
-  --sidebar-primary: oklch(0.725 0.19 128);
-  --sidebar-primary-foreground: oklch(0.21 0.04 238);
-  --sidebar-accent: oklch(0.34 0.08 238);
-  --sidebar-accent-foreground: oklch(0.99 0.006 100);
-  --sidebar-border: oklch(0.39 0.07 235);
-  --sidebar-ring: oklch(0.725 0.19 128);
+  --sidebar: var(--brand-navy);
+  --sidebar-foreground: var(--brand-white);
+  --sidebar-primary: var(--brand-green);
+  --sidebar-primary-foreground: var(--brand-white);
+  --sidebar-accent: color-mix(in srgb, var(--brand-blue) 25%, var(--brand-navy));
+  --sidebar-accent-foreground: var(--brand-white);
+  --sidebar-border: color-mix(in srgb, var(--brand-white) 18%, var(--brand-navy));
+  --sidebar-ring: var(--brand-green);
 }
 
 .dark {
-  --brand-navy: #60c5e9;
-  --brand-navy-soft: #12384b;
-  --brand-lime: #b8ee42;
-  --brand-red: #ff737a;
-  --success: oklch(0.83 0.19 125);
-  --success-foreground: oklch(0.22 0.03 236);
-  --status-success: #6d9f1d;
-  --status-info: #297da3;
-  --status-danger: #d94a50;
-  --background: oklch(0.19 0.025 240);
-  --foreground: oklch(0.96 0.01 105);
-  --card: oklch(0.235 0.03 239);
-  --card-foreground: oklch(0.96 0.01 105);
-  --popover: oklch(0.255 0.035 239);
-  --popover-foreground: oklch(0.96 0.01 105);
-  --primary: oklch(0.84 0.19 126);
-  --primary-foreground: oklch(0.22 0.04 238);
-  --secondary: oklch(0.31 0.05 237);
-  --secondary-foreground: oklch(0.96 0.01 105);
-  --muted: oklch(0.285 0.028 239);
-  --muted-foreground: oklch(0.75 0.02 225);
-  --accent: oklch(0.39 0.09 126);
-  --accent-foreground: oklch(0.96 0.01 105);
-  --destructive: oklch(0.69 0.2 25);
-  --destructive-foreground: oklch(0.22 0.03 238);
-  --border: oklch(0.37 0.032 238);
-  --input: oklch(0.32 0.03 239);
-  --ring: oklch(0.84 0.19 126);
-  --chart-1: oklch(0.72 0.12 221);
-  --chart-2: oklch(0.84 0.19 126);
-  --chart-3: oklch(0.66 0.13 220);
-  --chart-4: oklch(0.8 0.16 112);
-  --chart-5: oklch(0.71 0.13 85);
-  --sidebar: oklch(0.2 0.05 239);
-  --sidebar-foreground: oklch(0.95 0.012 105);
-  --sidebar-primary: oklch(0.84 0.19 126);
-  --sidebar-primary-foreground: oklch(0.2 0.04 238);
-  --sidebar-accent: oklch(0.29 0.06 239);
-  --sidebar-accent-foreground: oklch(0.98 0.01 105);
-  --sidebar-border: oklch(0.34 0.045 239);
-  --sidebar-ring: oklch(0.84 0.19 126);
+  --background: var(--brand-navy);
+  --foreground: var(--brand-white);
+  --card: color-mix(in srgb, var(--brand-white) 4%, var(--brand-navy));
+  --card-foreground: var(--brand-white);
+  --popover: color-mix(in srgb, var(--brand-white) 6%, var(--brand-navy));
+  --popover-foreground: var(--brand-white);
+  --muted: color-mix(in srgb, var(--brand-white) 7%, var(--brand-navy));
+  --muted-foreground: color-mix(in srgb, var(--brand-white) 72%, var(--brand-navy));
+  --accent: color-mix(in srgb, var(--brand-blue) 18%, var(--brand-navy));
+  --accent-foreground: var(--brand-white);
+  --border: color-mix(in srgb, var(--brand-white) 14%, var(--brand-navy));
+  --input: color-mix(in srgb, var(--brand-white) 10%, var(--brand-navy));
 }
 
 @theme inline {
@@ -157,6 +130,11 @@
 /* A calmer, ledger-like surface: white panels sit lightly over the warm page
  * background, while the navigation retains the deep navy from the reference. */
 [data-slot="card"] { box-shadow: 0 6px 20px rgb(19 59 82 / 0.055); }
+html:not(.dark) [data-slot="card"],
+html:not(.dark) .gym-metric-card:not(.gym-metric-navy):not(.gym-metric-lime) {
+  border-color: color-mix(in srgb, var(--brand-navy) 22%, var(--brand-white));
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--brand-navy) 12%, transparent);
+}
 
 /* Dashboard shell details based on the supplied navy-and-lime reference. */
 .gym-sidebar [data-slot="sidebar-header"] { padding: 1rem 0.8rem 0.85rem; }
@@ -175,11 +153,11 @@
 .gym-sidebar [data-slot="sidebar-content"]::-webkit-scrollbar-thumb { border-radius: 999px; background: var(--sidebar-accent); }
 .gym-sidebar [data-slot="sidebar-content"]::-webkit-scrollbar-thumb:hover { background: var(--sidebar-border); }
 .gym-header { box-shadow: 0 1px 0 rgb(6 77 112 / 0.06); }
-.gym-shell { background: linear-gradient(135deg, #f8faf8 0%, #f4f7f6 100%); }
+.gym-shell { background: var(--brand-white); }
 .gym-dashboard .gym-metric-card { min-height: 9rem; }
 .gym-dashboard .gym-metric-navy { box-shadow: 0 6px 20px rgb(19 59 82 / 0.12); }
 .gym-dashboard .gym-metric-lime { box-shadow: 0 6px 20px rgb(94 132 18 / 0.14); }
-.dark .gym-shell { background: linear-gradient(135deg, oklch(0.19 0.025 240) 0%, oklch(0.16 0.025 240) 100%); }
+.dark .gym-shell { background: linear-gradient(135deg, var(--brand-navy) 0%, color-mix(in srgb, var(--brand-blue) 32%, var(--brand-navy)) 100%); }
 .gym-form-section { border-color: rgb(6 79 112 / 0.12); }
 .dark .gym-form-section { border-color: var(--border); }
 .members-directory [data-slot="card-header"] { padding-block: 1.1rem; }
@@ -187,23 +165,50 @@
 .members-table th { color: var(--muted-foreground); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; }
 .members-table tbody tr { transition: background-color 160ms ease; }
 .members-table tbody tr:hover { background: color-mix(in oklab, var(--brand-navy-soft) 28%, transparent); }
+html:not(.dark) .members-table { border-color: color-mix(in srgb, var(--brand-navy) 22%, var(--brand-white)); }
+html:not(.dark) .members-table thead { background: var(--brand-navy); }
+html:not(.dark) .members-table th { color: var(--brand-white); }
+html:not(.dark) .members-table tbody tr:nth-child(even) { background: color-mix(in srgb, var(--brand-navy) 3%, var(--brand-white)); }
 .dark .members-table thead { background: color-mix(in oklab, var(--sidebar) 55%, var(--card)); }
 .dark .members-table tbody tr:hover { background: rgb(255 255 255 / 0.035); }
 .auth-panel { box-shadow: 0 20px 45px rgb(6 79 112 / 0.10); }
-.dark .auth-panel { box-shadow: 0 20px 45px rgb(0 0 0 / 0.24); }
+.dark .auth-panel {
+  background: color-mix(in srgb, var(--brand-blue) 16%, var(--brand-navy));
+  border-color: color-mix(in srgb, var(--brand-blue) 48%, var(--brand-navy));
+  box-shadow: 0 20px 45px color-mix(in srgb, var(--brand-navy) 72%, transparent);
+}
+.dark .auth-panel label span { color: var(--brand-white); }
+.dark .auth-panel input {
+  background: color-mix(in srgb, var(--brand-blue) 10%, var(--brand-navy));
+  border-color: color-mix(in srgb, var(--brand-blue) 42%, var(--brand-navy));
+  color: var(--brand-white);
+}
+.dark .auth-panel input::placeholder { color: color-mix(in srgb, var(--brand-white) 56%, var(--brand-navy)); }
 .status-badge-success { background: color-mix(in srgb, var(--status-success) 14%, transparent); color: var(--status-success); }
 .status-badge-info { background: color-mix(in srgb, var(--status-info) 13%, transparent); color: var(--status-info); }
 .status-badge-danger { background: color-mix(in srgb, var(--status-danger) 13%, transparent); color: var(--status-danger); }
+html:not(.dark) .status-badge-success { background: color-mix(in srgb, var(--brand-green) 16%, var(--brand-white)); color: color-mix(in srgb, var(--brand-green) 58%, var(--brand-navy)); }
+html:not(.dark) .status-badge-info { background: color-mix(in srgb, var(--brand-blue) 12%, var(--brand-white)); color: color-mix(in srgb, var(--brand-blue) 76%, var(--brand-navy)); }
+html:not(.dark) .status-badge-danger { background: color-mix(in srgb, var(--brand-red) 12%, var(--brand-white)); color: color-mix(in srgb, var(--brand-red) 76%, var(--brand-navy)); }
+.metric-icon-success { background: color-mix(in srgb, var(--brand-green) 20%, transparent); color: var(--status-success); }
+.metric-icon-info { background: color-mix(in srgb, var(--brand-blue) 20%, transparent); color: var(--brand-blue); }
+.metric-icon-navy { background: color-mix(in srgb, var(--brand-white) 14%, var(--brand-navy)); color: var(--brand-white); }
+.metric-icon-danger { background: color-mix(in srgb, var(--brand-red) 18%, transparent); color: var(--brand-red); }
+html:not(.dark) .metric-icon-success { background: color-mix(in srgb, var(--brand-green) 28%, var(--brand-white)); color: color-mix(in srgb, var(--brand-green) 72%, var(--brand-navy)); }
+html:not(.dark) .metric-icon-info { background: color-mix(in srgb, var(--brand-blue) 22%, var(--brand-white)); color: color-mix(in srgb, var(--brand-blue) 80%, var(--brand-navy)); }
+html:not(.dark) .metric-icon-navy { background: color-mix(in srgb, var(--brand-navy) 16%, var(--brand-white)); color: var(--brand-navy); }
+html:not(.dark) .metric-icon-danger { background: color-mix(in srgb, var(--brand-red) 22%, var(--brand-white)); color: color-mix(in srgb, var(--brand-red) 80%, var(--brand-navy)); }
 .dark .status-badge-success { background: color-mix(in srgb, var(--status-success) 23%, transparent); color: #b9e863; }
 .dark .status-badge-info { background: color-mix(in srgb, var(--status-info) 28%, transparent); color: #7bd2f2; }
 .dark .status-badge-danger { background: color-mix(in srgb, var(--status-danger) 25%, transparent); color: #ff858a; }
 
 /* Public home page: navy, lime, and card surfaces aligned with the admin UI. */
-main:has(#home) { background: linear-gradient(180deg, #f4f7f8 0%, #f9fbfb 52%, #f4f7f8 100%) !important; }
-.landing-hero { background: var(--brand-navy); color: white; }
-.landing-hero-content > div:first-child > p:first-child { border-color: rgb(255 255 255 / 0.28); background: rgb(255 255 255 / 0.12); color: white; }
-.landing-hero h1 { color: white; }
-.landing-hero p:not(:first-child) { color: rgb(255 255 255 / 0.78); }
+main:has(#home) { background: var(--brand-white) !important; }
+.landing-hero {background: linear-gradient(135deg, rgb(225 240 245 / 0.7), rgb(244 247 248 / 0.9));  }
+.landing-hero-content > div:first-child > p:first-child { border-color: rgba(3, 11, 95, 0.29); background: gb(6 79 112 / 0.08); color: var(--brand-navy); }
+.landing-hero h1 { color: var(--brand-navy); }
+.landing-hero p:not(:first-child) { color: rgba(18, 7, 72, 0.902); }
+.landing-hero-media { border-color: rgb(255 255 255 / 0.2); background: var(--brand-blue); }
 .landing-hero-content > div:last-child { box-shadow: 0 24px 50px rgb(0 30 45 / 0.3); }
 #about > div:last-child { border-color: rgb(6 79 112 / 0.12); box-shadow: 0 14px 30px rgb(6 79 112 / 0.06); }
 #testimonials, #contact { background: linear-gradient(135deg, rgb(225 240 245 / 0.7), rgb(244 247 248 / 0.9)); }
@@ -213,8 +218,12 @@ main:has(#home) { background: linear-gradient(180deg, #f4f7f8 0%, #f9fbfb 52%, #
 #contact form { border-color: rgb(6 79 112 / 0.12); box-shadow: 0 14px 30px rgb(6 79 112 / 0.08); }
 main:has(#home) + footer { background: var(--sidebar); color: var(--sidebar-foreground); border-color: var(--sidebar-border); }
 main:has(#home) + footer span { color: color-mix(in srgb, var(--sidebar-foreground) 70%, transparent); }
-.dark main:has(#home) { background: linear-gradient(180deg, oklch(0.19 0.025 240), oklch(0.17 0.025 240)) !important; }
-.dark .landing-hero h1 { color: white; }
+.dark main:has(#home) { background: linear-gradient(180deg, var(--brand-navy), color-mix(in srgb, var(--brand-blue) 32%, var(--brand-navy))) !important; }
+.dark .landing-hero { background: var(--brand-navy); color: var(--brand-white); }
+.dark .landing-hero-content > div:first-child > p:first-child { border-color: rgb(255 255 255 / 0.28); background: rgb(255 255 255 / 0.12); color: var(--brand-white); }
+.dark .landing-hero h1 { color: var(--brand-white); }
+.dark .landing-hero p:not(:first-child) { color: rgb(255 255 255 / 0.78); }
+.dark .landing-hero-media { border-color: rgb(255 255 255 / 0.2); background: var(--brand-blue); }
 .dark #testimonials, .dark #contact { background: rgb(255 255 255 / 0.025); }
 
 @keyframes landing-reveal {
@@ -242,6 +251,6 @@ main:has(#home) + footer span { color: color-mix(in srgb, var(--sidebar-foregrou
 .dark input:-webkit-autofill:hover,
 .dark input:-webkit-autofill:focus {
   -webkit-text-fill-color: var(--foreground);
-  -webkit-box-shadow: 0 0 0 1000px oklch(0.205 0 0) inset;
+  -webkit-box-shadow: 0 0 0 1000px color-mix(in srgb, var(--brand-blue) 10%, var(--brand-navy)) inset;
   caret-color: var(--foreground);
 }

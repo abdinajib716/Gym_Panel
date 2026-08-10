@@ -23,7 +23,7 @@ export default async function SignInPage() {
   const loginArtwork = branding?.loginPageLogo || DEFAULT_LOGIN_ARTWORK
 
   return (
-    <main className="min-h-screen bg-[#f4f7f8] text-foreground dark:bg-background">
+    <main className="min-h-screen bg-background text-foreground">
       <div className="grid min-h-screen lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
         <section className="relative grid min-h-screen bg-background px-5 py-5 sm:px-8 sm:py-8 lg:px-12">
           <div className="absolute inset-x-0 top-0 z-10 flex items-center justify-between px-5 py-5 sm:px-8 sm:py-8 lg:px-12">

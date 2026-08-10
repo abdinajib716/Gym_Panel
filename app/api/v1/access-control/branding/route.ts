@@ -21,7 +21,7 @@ export async function GET() {
         key: "global",
         siteName: "Startap Admin",
         themeMode: "system",
-        primaryColor: "#2f8fe8",
+        primaryColor: "#2563eb",
         sidebarStyle: "default",
         layoutWidth: "boxed",
         headerStyle: "sticky",
