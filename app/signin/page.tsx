@@ -6,8 +6,7 @@ import { SignInArtwork } from "@/components/auth/signin-artwork"
 import { getAuthSession } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 
-// Replace this one path later if you add a dedicated gym login image.
-const DEFAULT_LOGIN_ARTWORK = "/images/misc/hero-dark.png"
+const DEFAULT_LOGIN_ARTWORK = "/images/misc/login-gym.avif"
 
 export default async function SignInPage() {
   const session = await getAuthSession()
@@ -27,7 +26,7 @@ export default async function SignInPage() {
       <div className="grid min-h-screen lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
         <section className="relative grid min-h-screen bg-background px-5 py-5 sm:px-8 sm:py-8 lg:px-12">
           <div className="absolute inset-x-0 top-0 z-10 flex items-center justify-between px-5 py-5 sm:px-8 sm:py-8 lg:px-12">
-            <a href="/" className="ml-auto flex size-10 items-center justify-center rounded-xl border border-border bg-card text-[var(--brand-navy)] shadow-sm transition-colors hover:bg-[var(--brand-navy-soft)]" aria-label="Back to website"><Globe2 className="size-4" /></a>
+            <a href="/" className="ml-auto flex size-10 items-center justify-center rounded-xl border border-border bg-card text-[var(--brand-navy)] shadow-sm transition-colors hover:bg-[var(--brand-navy-soft)] dark:border-white/25 dark:bg-[var(--brand-blue)] dark:text-white dark:hover:bg-[var(--brand-navy)]" aria-label="Back to website"><Globe2 className="size-4" /></a>
           </div>
           <div className="mx-auto grid w-full max-w-[28rem] place-content-center py-20 sm:py-24 lg:mx-0 lg:ml-[10%]">
             <div className="auth-panel rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8">

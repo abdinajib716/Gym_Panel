@@ -142,7 +142,7 @@ html:not(.dark) .gym-metric-card:not(.gym-metric-navy):not(.gym-metric-lime) {
 .gym-sidebar [data-slot="sidebar-group"] { padding: 0.15rem 0; }
 .gym-sidebar [data-slot="sidebar-menu-button"] { border-radius: 0.55rem; font-weight: 600; }
 .gym-sidebar [data-slot="sidebar-menu-button"][data-active="true"] {
-  background: rgb(255 255 255 / 0.12);
+  background: rgba(236, 6, 56, 0.12);
   box-shadow: inset 3px 0 0 var(--primary);
 }
 .gym-sidebar [data-slot="sidebar-menu-button"]:hover { background: rgb(255 255 255 / 0.08); }
@@ -166,7 +166,9 @@ html:not(.dark) .gym-metric-card:not(.gym-metric-navy):not(.gym-metric-lime) {
 .members-table tbody tr { transition: background-color 160ms ease; }
 .members-table tbody tr:hover { background: color-mix(in oklab, var(--brand-navy-soft) 28%, transparent); }
 html:not(.dark) .members-table { border-color: color-mix(in srgb, var(--brand-navy) 22%, var(--brand-white)); }
-html:not(.dark) .members-table thead { background: var(--brand-navy); }
+html:not(.dark) table thead { background: var(--brand-blue); color: var(--brand-white); }
+html:not(.dark) table thead th { color: var(--brand-white); }
+html:not(.dark) .members-table thead { background: var(--brand-blue); }
 html:not(.dark) .members-table th { color: var(--brand-white); }
 html:not(.dark) .members-table tbody tr:nth-child(even) { background: color-mix(in srgb, var(--brand-navy) 3%, var(--brand-white)); }
 .dark .members-table thead { background: color-mix(in oklab, var(--sidebar) 55%, var(--card)); }
