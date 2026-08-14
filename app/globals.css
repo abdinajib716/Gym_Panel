@@ -173,7 +173,18 @@ html:not(.dark) .members-table th { color: var(--brand-white); }
 html:not(.dark) .members-table tbody tr:nth-child(even) { background: color-mix(in srgb, var(--brand-navy) 3%, var(--brand-white)); }
 .dark .members-table thead { background: color-mix(in oklab, var(--sidebar) 55%, var(--card)); }
 .dark .members-table tbody tr:hover { background: rgb(255 255 255 / 0.035); }
-.auth-panel { box-shadow: 0 20px 45px rgb(6 79 112 / 0.10); }
+html:not(.dark) .auth-panel {
+  background: var(--card);
+  border-color: color-mix(in srgb, var(--brand-navy) 16%, var(--brand-white));
+  box-shadow: 0 16px 36px rgb(6 79 112 / 0.12);
+  text-shadow: none;
+}
+.auth-panel [data-slot="card"] {
+  background: transparent !important;
+  border-color: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
 .dark .auth-panel {
   background: color-mix(in srgb, var(--brand-blue) 16%, var(--brand-navy));
   border-color: color-mix(in srgb, var(--brand-blue) 48%, var(--brand-navy));

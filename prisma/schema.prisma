@@ -10,7 +10,7 @@ datasource db {
 model AccessControlSettings {
   id                  String   @id @default(uuid())
   key                 String   @unique @default("global")
-  siteName            String   @default("Startap Admin")
+  siteName            String   @default("AflaxFiness")
   siteLogoFullLight   String?
   siteIcon            String?
   siteLogoFullDark    String?
@@ -126,7 +126,7 @@ model LandingPage {
   published          Boolean  @default(true)
   heroEyebrow        String   @default("Gym management, simplified")
   heroTitle          String   @default("Run your gym with confidence.")
-  heroDescription    String   @default("GymMaster brings your members, subscriptions, payments, attendance, and team together in one reliable workspace.")
+  heroDescription    String   @default("AflaxFiness brings your members, subscriptions, payments, attendance, and team together in one reliable workspace.")
   heroImage          String?
   heroPrimaryLabel   String   @default("Get started")
   heroSecondaryLabel String   @default("Learn more")

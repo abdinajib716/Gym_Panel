@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
 
     if (recipient) {
       const text = [
-        `New GymMaster website enquiry from ${payload.name}`,
+        `New AflaxFiness website enquiry from ${payload.name}`,
         `Email: ${payload.email}`,
         `Phone: ${payload.phone || "Not provided"}`,
         "",

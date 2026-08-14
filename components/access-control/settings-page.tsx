@@ -28,7 +28,7 @@ import { settingsSchema } from "@/lib/validations/access-control"
 type SettingsFormValues = z.input<typeof settingsSchema>
 
 const defaultValues: SettingsFormValues = {
-  siteName: "Startap Admin",
+  siteName: "AflaxFiness",
   siteLogoFullLight: "",
   siteIcon: "",
   siteLogoFullDark: "",
@@ -40,7 +40,7 @@ const defaultValues: SettingsFormValues = {
   layoutWidth: "boxed",
   headerStyle: "sticky",
   mailDriver: "smtp",
-  fromName: "Startap Admin",
+  fromName: "AflaxFiness",
   fromEmail: "hello@startap.dev",
   smtpHost: "smtp.mailtrap.io",
   smtpPort: 587,
@@ -342,7 +342,7 @@ export function AccessControlSettingsPage() {
             >
               <div className="grid gap-4 md:grid-cols-2">
                 <FieldBlock label="Site Name" error={form.formState.errors.siteName?.message}>
-                  <Input {...form.register("siteName")} placeholder="Startap Admin" />
+                  <Input {...form.register("siteName")} placeholder="AflaxFiness" />
                 </FieldBlock>
                 <Controller
                   control={form.control}
@@ -550,7 +550,7 @@ export function AccessControlSettingsPage() {
                   />
                 </FieldBlock>
                 <FieldBlock label="From name" error={form.formState.errors.fromName?.message}>
-                  <Input {...form.register("fromName")} placeholder="Startap Admin" />
+                  <Input {...form.register("fromName")} placeholder="AflaxFiness" />
                 </FieldBlock>
                 <FieldBlock label="From email" error={form.formState.errors.fromEmail?.message}>
                   <Input {...form.register("fromEmail")} placeholder="hello@startap.dev" />

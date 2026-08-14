@@ -28,8 +28,8 @@ export default async function SignInPage() {
           <div className="absolute inset-x-0 top-0 z-10 flex items-center justify-between px-5 py-5 sm:px-8 sm:py-8 lg:px-12">
             <a href="/" className="ml-auto flex size-10 items-center justify-center rounded-xl border border-border bg-card text-[var(--brand-navy)] shadow-sm transition-colors hover:bg-[var(--brand-navy-soft)] dark:border-white/25 dark:bg-[var(--brand-blue)] dark:text-white dark:hover:bg-[var(--brand-navy)]" aria-label="Back to website"><Globe2 className="size-4" /></a>
           </div>
-          <div className="mx-auto grid w-full max-w-[28rem] place-content-center py-20 sm:py-24 lg:mx-0 lg:ml-[10%]">
-            <div className="auth-panel rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8">
+          <div className="mx-auto grid w-full max-w-[30rem] place-content-start pt-24 pb-10 sm:pt-28 sm:pb-12 lg:mx-0 lg:ml-[10%] lg:pt-[18vh]">
+            <div className="auth-panel rounded-2xl border border-border bg-card px-7 py-8 shadow-sm sm:px-9 sm:py-10">
               <SignInForm />
             </div>
           </div>

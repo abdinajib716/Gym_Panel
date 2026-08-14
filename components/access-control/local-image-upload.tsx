@@ -68,7 +68,7 @@ export function LocalImageUpload({
           )}
         </div>
         <div className="flex flex-1 flex-wrap items-center gap-2">
-          <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleSelect} />
+          <input ref={inputRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleSelect} />
           <Button type="button" variant="outline" className="gap-2" onClick={() => inputRef.current?.click()} disabled={uploading}>
             {uploading ? <Spinner /> : <Upload className="h-4 w-4" />}
             {uploading ? "Uploading..." : "Upload image"}

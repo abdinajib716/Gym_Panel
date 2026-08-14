@@ -18,7 +18,7 @@ async function getGlobalSettings() {
     update: {},
     create: {
       key: "global",
-      fromName: "Startap Admin",
+      fromName: "AflaxFiness",
       fromEmail: "hello@startap.dev",
       smtpHost: "smtp.mailtrap.io",
       smtpPort: 587,

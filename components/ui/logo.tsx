@@ -47,7 +47,7 @@ export function Logo({ variant = "default", className, href = "/", preferLoginLo
 	}, [data])
 
 	const branding = data?.branding ?? storedBranding
-	const siteName = branding?.siteName || "Gym Master"
+	const siteName = branding?.siteName || "AflaxFiness"
 	const rawLogoSrc = useMemo(
 		() => {
 			if (preferLoginLogo && branding?.loginPageLogo) {

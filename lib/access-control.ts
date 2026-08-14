@@ -208,14 +208,14 @@ async function runAccessControlSeed() {
     await prisma.accessControlSettings.create({
       data: {
         key: "global",
-        siteName: "Startap Admin",
+        siteName: "AflaxFiness",
         themeMode: "system",
         primaryColor: "#2f8fe8",
         sidebarStyle: "default",
         layoutWidth: "boxed",
         headerStyle: "sticky",
         mailDriver: "smtp",
-        fromName: "Startap Admin",
+        fromName: "AflaxFiness",
         fromEmail: "hello@startap.dev",
         smtpHost: "smtp.mailtrap.io",
         smtpPort: 587,

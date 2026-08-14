@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto"
+import { mkdir, writeFile } from "node:fs/promises"
+import path from "node:path"
 import { NextRequest } from "next/server"
-import { put } from "@vercel/blob"
 
 import { requireAuth } from "@/lib/auth"
 import { AppError, withErrorHandling } from "@/lib/error-handler"
@@ -33,19 +34,13 @@ export async function POST(request: NextRequest) {
       throw new AppError(400, "Image size must be 2MB or less")
     }
 
-    if (!process.env.BLOB_READ_WRITE_TOKEN) {
-      throw new AppError(503, "Image storage is not configured. Add BLOB_READ_WRITE_TOKEN to this environment.")
-    }
-
     const fileName = `${Date.now()}-${randomUUID()}${extension}`
-    const blob = await put(`access-control/${fileName}`, file, {
-      access: "public",
-      addRandomSuffix: false,
-      contentType: file.type,
-    })
+    const directory = path.join(process.cwd(), "public", "uploads", "access-control")
+    await mkdir(directory, { recursive: true })
+    await writeFile(path.join(directory, fileName), Buffer.from(await file.arrayBuffer()))
 
     return {
-      url: blob.url,
+      url: `/uploads/access-control/${fileName}`,
       fileName,
     }
   }, { path: "/api/v1/uploads/image", method: "POST" })

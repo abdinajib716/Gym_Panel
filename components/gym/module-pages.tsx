@@ -26,8 +26,7 @@ const planTypeOptions = [
   { label: "Monthly", value: "MONTHLY" },
   { label: "Quarterly", value: "QUARTERLY" },
   { label: "Annual", value: "ANNUAL" },
-  { label: "Group Training", value: "GROUP_TRAINING" },
-  { label: "Personal Training", value: "PERSONAL_TRAINING" },
+
 ]
 
 const subscriptionStatusOptions = [

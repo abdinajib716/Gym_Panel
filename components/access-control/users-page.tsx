@@ -289,7 +289,7 @@ export function AccessControlUsersPage() {
               <div className="grid gap-4 md:grid-cols-2">
                 <LocalImageUpload
                   label="Avatar"
-                  hint="Upload avatar (Max 2MB). Images will be automatically optimized to WebP format."
+                  hint="Upload a JPG, PNG, or WebP avatar (maximum 2MB)."
                   value={form.watch("avatarUrl")}
                   error={form.formState.errors.avatarUrl?.message}
                   onChange={(value) => form.setValue("avatarUrl", value, { shouldValidate: true })}

@@ -7,7 +7,6 @@ import { Eye, EyeOff, LockKeyhole, Mail } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
 import { apiRequest } from "@/lib/client-api"
@@ -135,14 +134,14 @@ export function SignInForm() {
       : "Enter the code from your email and choose a new password."
 
   return (
-    <Card className="w-full gap-0 border-0 bg-transparent py-0 shadow-none">
-      <CardHeader className="space-y-3 px-0 pt-0 text-left">
-        <CardTitle className="text-3xl font-bold tracking-tight">
+    <div className="w-full">
+      <div className="space-y-3 text-left">
+        <h1 className="text-3xl font-bold tracking-tight">
           {title}
-        </CardTitle>
+        </h1>
         <p className="text-sm text-muted-foreground">{description}</p>
-      </CardHeader>
-      <CardContent className="px-0 pb-0 pt-7">
+      </div>
+      <div className="pt-7">
         <form onSubmit={mode === "signin" ? handleSubmit : mode === "forgot" ? handleForgotPassword : handleResetPassword} className="space-y-4">
           <label className="block space-y-2">
             <span className="block text-sm font-semibold text-foreground">Email address</span>
@@ -263,7 +262,7 @@ export function SignInForm() {
             ) : null}
           </div>
         </form>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }

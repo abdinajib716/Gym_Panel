@@ -96,7 +96,7 @@ export function AdminSidebar() {
   return (
     <Sidebar variant="sidebar" collapsible="icon" className="gym-sidebar">
       <SidebarHeader className="border-b border-sidebar-border">
-        <div className="px-2 py-1">
+        <div className="flex items-center gap-2 px-2 py-1 group-data-[collapsible=icon]:justify-center">
           <Logo href="/dashboard" className="group-data-[collapsible=icon]:hidden" />
           <Logo href="/dashboard" variant="compact" className="hidden group-data-[collapsible=icon]:flex" />
         </div>

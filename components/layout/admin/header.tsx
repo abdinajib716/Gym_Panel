@@ -39,11 +39,11 @@ export default function Header() {
 
 	return (
 		<header className="gym-header sticky top-0 z-50 border-b border-sidebar-border bg-background/95 backdrop-blur">
+			<SidebarTrigger className="absolute left-2 top-1/2 z-10 h-9 w-9 -translate-y-1/2 rounded-lg border-[var(--brand-navy)] bg-[var(--brand-navy)] text-white shadow-sm hover:bg-[var(--brand-navy)]/90" />
 			<div className={cn("px-4 sm:px-6 lg:px-8", fullWidth ? "max-w-none" : "page-container")}>
 				<div className="flex h-16 items-center justify-between gap-4">
 					<div className="flex min-w-0 items-center gap-3">
-						<SidebarTrigger className="h-9 w-9 rounded-lg border-[var(--brand-navy)] bg-[var(--brand-navy)] text-white shadow-none hover:bg-[var(--brand-navy)]/90" />
-						<Logo href="/dashboard" variant="compact" className="md:hidden" />
+						<Logo href="/dashboard" variant="compact" className="ml-10 md:hidden" />
 					</div>
 
 					<div className="flex items-center gap-1.5 sm:gap-2">

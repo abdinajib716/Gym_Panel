@@ -40,7 +40,7 @@ export async function ensureLandingPage() {
   if (await prisma.landingTeamMember.count() === 0) {
     await prisma.landingTeamMember.createMany({
       data: [
-        { name: "Ayaan Hassan", role: "Founder & Gym Operations", bio: "Keeps every GymMaster workflow focused on the people running great gyms.", position: 0, published: true },
+        { name: "Ayaan Hassan", role: "Founder & Gym Operations", bio: "Keeps every AflaxFiness workflow focused on the people running great gyms.", position: 0, published: true },
         { name: "Hodan Ali", role: "Member Experience Lead", bio: "Helps gyms build a welcoming experience for every member from day one.", position: 1, published: true },
         { name: "Mohamed Farah", role: "Fitness Programs Lead", bio: "Turns training plans and coach schedules into clear, practical daily routines.", position: 2, published: true },
         { name: "Sahra Nur", role: "Customer Success Manager", bio: "Partners with gym teams to make their operations simpler and more connected.", position: 3, published: true },
