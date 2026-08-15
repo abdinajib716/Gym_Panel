@@ -182,7 +182,7 @@ export function GymDashboardPage() {
     { label: "Total trainers", value: String(stats.totalTrainers ?? 0), icon: UserCheck, tone: "amber" as const, trend: cardTrends.totalTrainers },
     { label: "Expired subscriptions", value: String(stats.expiredSubscriptions ?? 0), icon: CalendarClock, tone: "amber" as const, trend: cardTrends.expiredSubscriptions },
     { label: "Today's attendance", value: String(stats.todayAttendance ?? 0), icon: Activity, tone: "primary" as const, trend: cardTrends.todayAttendance ?? attendanceTrend.map((point) => point.attendance) },
-    { label: "Monthly revenue", value: currency(stats.monthlyRevenue), icon: WalletCards, tone: "sky" as const, trend: cardTrends.monthlyRevenue ?? revenueTrend.map((point) => point.revenue) },
+    { label: "Total revenue", value: currency(stats.totalRevenue), icon: WalletCards, tone: "sky" as const, trend: cardTrends.monthlyRevenue ?? revenueTrend.map((point) => point.revenue) },
     { label: "Pending payments", value: String(stats.pendingPayments ?? 0), icon: CreditCard, tone: "rose" as const, trend: cardTrends.pendingPayments },
     { label: "Notifications this month", value: String(stats.recentNotifications ?? 0), icon: Bell, tone: "primary" as const, trend: cardTrends.recentNotifications },
   ]

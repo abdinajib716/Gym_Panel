@@ -51,6 +51,7 @@ export async function GET() {
       pendingPayments,
       todayAttendance,
       monthlyRevenue,
+      totalRevenue,
       totalTrainers,
       recentNotifications,
       recentMembers,
@@ -73,6 +74,10 @@ export async function GET() {
       prisma.attendance.count({ where: { checkInDate: { gte: today }, status: "PRESENT" } }),
       prisma.payment.aggregate({
         where: { status: "PAID", paymentDate: { gte: monthStart } },
+        _sum: { amount: true },
+      }),
+      prisma.payment.aggregate({
+        where: { status: "PAID" },
         _sum: { amount: true },
       }),
       prisma.trainer.count(),
@@ -156,6 +161,7 @@ export async function GET() {
         pendingPayments,
         todayAttendance,
         monthlyRevenue: monthlyRevenue._sum.amount ?? 0,
+        totalRevenue: totalRevenue._sum.amount ?? 0,
         totalTrainers,
         recentNotifications,
       },
